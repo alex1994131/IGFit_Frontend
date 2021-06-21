@@ -1,0 +1,70 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.desktop-visible { display:block!important;}
+.mobile-visible { display:none!important;}
+.responsive-text-p {
+    font-size: medium;
+    font-weight: normal;
+}
+
+.input-range {
+    width: 30%;
+    //min-width: 465px;
+    margin: 5px 10px 0px 0px
+}
+
+.prev-next-button {
+    width: 50px;
+    background: transparent!important;
+    font-size: 1.5em!important;
+    padding: 0px 0px 25px 0px;  
+}
+
+div .colored-circle {
+    display: inline-block;
+    // margin-left: 5px;
+    margin-right: 5px;
+    // margin-bottom: -2px;
+    border-radius: 50%;
+    // border-style: solid;
+    // border-width: 0.5px;
+    // border-color: black;
+    height: 10px;
+    width: 10px;
+    background-color: lightgray;
+  }
+
+.header.span {
+    float: right
+}
+
+@media (max-width: 640px) {
+.desktop-visible { display: none!important; }
+.mobile-visible { display: block!important; }
+.header.span {
+    float: none;
+}
+.responsive-text-p { font-size: 0.6em;}
+.input-range {
+    width: 100%;
+    //min-width: none;
+    margin: 0px;
+    padding: 5px 0px 0px 0px;
+}
+.prev-next-button {
+    font-size: 1rem!important;
+}
+.prev-next-button.left {
+    left:10%
+}
+.prev-next-button.right {
+    right:10%
+}
+.prev-next {
+    margin-top: -30px;
+    margin-bottom: 10px;
+}
+}
+
