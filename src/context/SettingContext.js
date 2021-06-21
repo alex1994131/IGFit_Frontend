@@ -1,7 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import merge from 'lodash.merge'
-import { getSession, fake_session, GetUserAuth } from '../redux/actions/userAction'
+import { getSession, GetUserAuth } from '../redux/actions/userAction'
+
+import { history } from '../history'
 
 const UserContext = createContext({
     user: null,
@@ -21,8 +23,8 @@ const UserProvider = ({ children }) => {
 
     const userState = {
         user: null,
-        setUserDetails,
         settings: {},
+        setUserDetails,
     }
 
     const setSettings = ({ settings }) => {
@@ -44,7 +46,9 @@ const UserProvider = ({ children }) => {
                 setUserDetails({ user })
             }
         } else {
-            fake_session()
+            if (history.location.pathname !== "/signin" || history.location.pathname !== "/singup") {
+                history.push("/signin")
+            }
         }
     }
 

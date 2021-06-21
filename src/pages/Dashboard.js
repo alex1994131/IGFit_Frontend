@@ -90,15 +90,15 @@ const Dashboard = props => {
                 key: 'Tab 18'
             }
         },
-        // {
-        //     menuItem: 'Spending',
-        //     pane: {
-        //         content: (<TablePx2 data={datatx} searchQuery="acc:amount:-m:12 acc:category.title:-m:12 category.title!=transfer category.title!=sal category.title!=inc category.title!=“credit card” category.title!=taxes" />),
-        //         style: { marginTop: 0, marginBottom: 0 },
-        //         attached: false,
-        //         key: 'Tab 8'
-        //     }
-        // },
+        {
+            menuItem: 'Spending',
+            pane: {
+                content: (<TablePx2 data={datatx} searchQuery="acc:amount:-m:12 acc:category.title:-m:12 category.title!=transfer category.title!=sal category.title!=inc category.title!=“credit card” category.title!=taxes" />),
+                style: { marginTop: 0, marginBottom: 0 },
+                attached: false,
+                key: 'Tab 8'
+            }
+        },
         {
             menuItem: 'Overview',
             pane: {

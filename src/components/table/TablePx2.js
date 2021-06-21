@@ -15,6 +15,7 @@ import { shorten, formatter_commas, debounce, Responsive, useBreakpoints } from 
 
 
 const App = (props) => {
+    console.log(props)
     //const searchQuery = props.searchQuery ? props.searchQuery : "acc:amount";
     const [filteredData, setFilteredData] = useState();
     const [saved_elements, setSavedElements] = useState([]);
@@ -129,7 +130,7 @@ const App = (props) => {
                                         }
                                     },
                                 }, getColStackAnnotation)}
-                            {NewElement(catcalc, props, Responsive(breakpoints, 350 - 38, 350 - 38), <SemanticDatepicker onChange={onChange} type="range" />)}
+                            {/* {NewElement(catcalc, props, Responsive(breakpoints, 350 - 38, 350 - 38), <SemanticDatepicker onChange={onChange} type="range" />)} */}
                             <div className="prev-next" style={{ textAlign: "center", display: "flex", justifyContent: "space-between" }}>
                                 <Button icon='left chevron' className="prev-next-button left" style={{ paddingLeft: "5%" }} onClick={onClick("prev")} />
                                 <span style={{ alignSelf: "center", height: 39 }}>
@@ -145,13 +146,8 @@ const App = (props) => {
                 </Grid>
             </div>
             <div style={{ display: showTable.current ? "inline" : "none" }}>
-                {/* {(categoryData)?<Newtablememo key="NewTableCategories" 
-                    data={categoryData}
-                    cols={cols}
-                    searchOpen={false}
-                    responsive={"standard"}
-                />:""} */}
-                {(categoryData) ? <TablePx4 key="NewTableCategories" /* set_search_data={cb2} */
+
+                {(categoryData) ? <TablePx4 key="NewTableCategories"
                     data={categoryData}
                     minimal
                 /> : ""}

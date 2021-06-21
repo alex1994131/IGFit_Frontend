@@ -3,24 +3,22 @@ import * as actionTypes from './index'
 // import axios from 'axios';
 import { history } from "../../history"
 
-export const is_session = () => {
+export const getSession = () => {
     if (localStorage['jwtToken'] && localStorage['jwtToken'] !== "undefined") {
-        return true;
+        return localStorage['jwtToken'];
     } else {
         return false;
     }
 }
 
-
-export const getSession = () => {
-
-}
-
-export const fake_session = () => {
+export const GetUserAuth = (token) => {
 
 }
 
+export const signinAction = (auth_info) => {
+    console.log(auth_info);
+}
 
-export const GetUserAuth = () => {
-
+export const signupAction = (auth_info) => {
+    console.log(auth_info)
 }
