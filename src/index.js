@@ -6,8 +6,8 @@ import 'semantic-ui-less/semantic.less'
 
 // ** Redux Imports
 import { Provider } from 'react-redux'
-import { store } from './redux/store'
-import { UserProvider } from "./context/SettingContext"
+import { store } from './stores/store'
+import { UserProvider } from "./stores/contexts/UserContext"
 
 import Loading from "./components/Loading"
 

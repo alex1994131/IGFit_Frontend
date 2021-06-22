@@ -2,8 +2,8 @@ import React, { Suspense, lazy } from 'react'
 import { history } from "./history"
 import { Switch, Route, Redirect } from "react-router-dom"
 import FallbackSpinner from "./components/Loading"
-import MainLayoutTag from "./layout/MainLayout"
-import AuthLayoutTag from "./layout/AuthLayout"
+import MainLayoutTag from "./layouts/MainLayout"
+import AuthLayoutTag from "./layouts/AuthLayout"
 import { BrowserRouter as Router } from "react-router-dom"
 
 const SignIn = lazy(() => import('./pages/SignIn'))

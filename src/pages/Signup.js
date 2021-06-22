@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
 import { Link } from "react-router-dom"
 
-import { signupAction } from '../redux/actions/userAction';
+import { signupAction } from '../stores/actions/userAction';
 
 const SignUpForm = () => {
     const [name, setName] = useState("")
@@ -11,7 +11,6 @@ const SignUpForm = () => {
     const [confirmPassword, setConfirmPassword] = useState("")
 
     const onSignUp = (e) => {
-
 
         const auth_info = {
             name: name,

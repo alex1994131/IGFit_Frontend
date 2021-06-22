@@ -1,14 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
 import { Link } from "react-router-dom"
 
-import { signinAction } from '../redux/actions/userAction';
+import { UserContext } from "../stores/contexts/UserContext";
+import { signinAction } from '../stores/actions/userAction';
 
 const SignInForm = () => {
 
     const [error, setError] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+
+    // console.log(useContext(UserContext));
 
     const onSignIn = (e) => {
         e.preventDefault();

@@ -1,9 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import merge from 'lodash.merge'
-import { getSession, GetUserAuth } from '../redux/actions/userAction'
+import { getSession, GetUserAuth } from '../actions/userAction'
 
-import { history } from '../history'
+import { history } from '../../history'
 
 const UserContext = createContext({
     user: null,
@@ -14,17 +14,11 @@ const UserContext = createContext({
 const UserProvider = ({ children }) => {
     const dispatch = useDispatch()
 
-    const setUserDetails = ({ user, settings }) => {
+    const setUserDetails = ({ user }) => {
         updateUserDetails(prevState => {
             const newState = { ...prevState }
-            return merge(newState, { user, settings, })
+            return merge(newState, { user })
         })
-    }
-
-    const userState = {
-        user: null,
-        settings: {},
-        setUserDetails,
     }
 
     const setSettings = ({ settings }) => {
@@ -34,16 +28,22 @@ const UserProvider = ({ children }) => {
         })
     }
 
+    const userState = {
+        user: null,
+        settings: {},
+        setUserDetails,
+    }
+
     const [userDetails, updateUserDetails] = useState(userState)
 
     const load = async () => {
-
         const get_sess = getSession() // session existing
 
         if (get_sess) {
             const r = await GetUserAuth({ token: get_sess })
             if (r.status) {
                 setUserDetails({ user })
+                setSettings({});
             }
         } else {
             if (history.location.pathname !== "/signin" || history.location.pathname !== "/singup") {

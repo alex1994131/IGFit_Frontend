@@ -1,4 +1,4 @@
-import * as actionTypes from './index'
+import * as actionTypes from './actionTypes'
 // import jwt from 'jsonwebtoken';
 // import axios from 'axios';
 import { history } from "../../history"
