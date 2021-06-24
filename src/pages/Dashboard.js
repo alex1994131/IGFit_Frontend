@@ -24,7 +24,7 @@ import TableIG31 from "../components/table/TableIG3_1.tsx"
 
 const offlineMode = 1;
 
-const Dashboard = props => {
+const Dashboard = (props) => {
     // const [data, setData] = useState([]);
     const [datatx, setDatatx] = useState([]);
     const [Px, setPx] = useState();

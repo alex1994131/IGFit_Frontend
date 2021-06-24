@@ -4,25 +4,50 @@ import { Link } from "react-router-dom"
 
 import { signupAction } from '../stores/actions/userAction';
 
-const SignUpForm = () => {
-    const [name, setName] = useState("")
+const SignUpForm = (props) => {
+
+    const [error, setError] = useState("")
+    const [username, setUserName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
-    const onSignUp = (e) => {
+    const onSignUp = async (e) => {
 
-        const auth_info = {
-            name: name,
+        if (!username) {
+            return setError('Please enter your User Name')
+        }
+
+        if (!email) {
+            return setError('Please enter your email')
+        }
+        else if (!/\S+@\S+\.\S+/.test(email)) {
+            return setError('Email address is invalid')
+        }
+
+        if (!password) {
+            return setError('Please enter your password')
+        }
+        else if (password !== confirmPassword) {
+            return setError('Password is not same with confirm password')
+        }
+
+        const user_info = {
+            username: username,
             email: email,
             password: password
         };
 
-        signupAction(auth_info);
+        let res = await signupAction(user_info);
+        if (res.status) {
+            props.history.push('/signin')
+        } else {
+            alert(res.message)
+        }
     }
 
-    const handleNameChange = (evt) => {
-        setEmail(evt.target.value)
+    const handleUserNameChange = (evt) => {
+        setUserName(evt.target.value)
     }
 
     const handleEmailChange = (evt) => {
@@ -43,16 +68,28 @@ const SignUpForm = () => {
                 <Header as='h2' color='teal' textAlign='center'>
                     <Image src='../../public/images/logo.png' /> Sign Up to your account
                 </Header>
-                <Form size='large'>
+                <Form
+                    size='large'
+                    error
+                >
                     <Segment stacked>
+                        {
+                            error && (
+                                <Message
+                                    error
+                                    header='Error'
+                                    content={error}
+                                />
+                            )
+                        }
                         <Form.Input
-                            id="name"
+                            id="username"
                             fluid
                             icon='user'
                             iconPosition='left'
                             placeholder='User Name'
-                            value={name}
-                            onChange={handleNameChange}
+                            value={username}
+                            onChange={handleUserNameChange}
                         />
 
                         <Form.Input

@@ -1,8 +1,27 @@
-import { combineReducers } from "redux"
-import { login } from "./login"
+import * as actionTypes from '../../actions/actionTypes'
 
-const authReducers = combineReducers({
-    login,
-})
+const initialState = {
+    isAuthenticated: false,
+    authorizationToken: ""
+};
 
-export default authReducers
+const auth = (state = initialState, action) => {
+    switch (action.type) {
+        case actionTypes.LOGIN_SUCCESSFUL: {
+            return {
+                isAuthenticated: true,
+                authorizationToken: action.authorizationToken
+            }
+        }
+        case actionTypes.LOGOUT_USER: {
+            return {
+                isAuthenticated: false,
+                authorizationToken: ""
+            }
+        }
+        default:
+            return state;
+    }
+}
+
+export default auth
