@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-import { Container, Button, Icon, Label, Menu, Table, Header, Modal, Input, Message } from 'semantic-ui-react'
+import { Container, Button, Icon, Table, Header, Modal, Input, Message } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
+
+import Pagination from '../components/Pagination'
 
 import { getSession } from '../stores/actions/userAction';
 import { getPortfolio, newPortfolio } from '../stores/actions/portfolioAction';
@@ -14,30 +16,43 @@ const Portfolio = (props) => {
     const [modalOpen, setModalOpen] = React.useState(false)
     const [errorMessageOpen, setErrorMessageOpen] = React.useState(false)
 
-    const accessToken = getSession()
+    const [fetch, setFetch] = useState(0);
 
-    useEffect(() => {
-        const res = getPortfolio(accessToken);
-        if (res.status) {
-            setPortfolio(res.data)
-        }
-        else {
-            props.history.push("/signin");
-        }
-    });
+    const pageItemCount = 3
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentData, setCurrentData] = useState([])
 
-    const onNewCreate = (e) => {
+    const prepareCurrentData = (data) => {
+        const cur_data = data.slice(
+            (currentPage - 1) * pageItemCount,
+            (currentPage - 1) * pageItemCount + pageItemCount
+        );
+        setCurrentData(cur_data)
+    }
+
+    const onPageChanged = useCallback(
+        (event, page) => {
+            event.preventDefault();
+            setCurrentPage(page);
+            console.log(portfolio)
+            prepareCurrentData(portfolio)
+        },
+        [setCurrentPage]
+    );
+
+    const onNewCreate = async (e) => {
         if (!newPortfolioName) {
             return setError('Please enter new portfolio name')
         }
 
-        // const res = newPortfolio(newPortfolioName, accessToken);
-        // if (res.status) {
-        //     setPortfolio(res.data)
-        // }
-        // else {
-        //     alert(res.message);
-        // }
+        const accessToken = getSession()
+        const res = await newPortfolio(newPortfolioName, accessToken);
+        if (res.status) {
+            setPortfolio(res.data)
+        }
+        else {
+            alert(res.message);
+        }
 
         setModalOpen(false)
     }
@@ -50,6 +65,25 @@ const Portfolio = (props) => {
         setError("")
         setErrorMessageOpen(true)
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!fetch) {
+                const accessToken = getSession()
+
+                const res = await getPortfolio(accessToken);
+                setFetch(1);
+                if (res.status) {
+                    setPortfolio(res.data)
+                    prepareCurrentData(res.data)
+                }
+                else {
+                    props.history.push("/signin");
+                }
+            }
+        }
+        fetchData()
+    });
 
     return (
         <>
@@ -94,48 +128,48 @@ const Portfolio = (props) => {
                         </Button>
                     </div>
                     <div>
-                        <Table sortable celled fixed>
+                        <Table sortable celled fixed selectable>
                             <Table.Header>
                                 <Table.Row>
-                                    <Table.HeaderCell>Header</Table.HeaderCell>
-                                    <Table.HeaderCell>Header</Table.HeaderCell>
-                                    <Table.HeaderCell>Header</Table.HeaderCell>
+                                    <Table.HeaderCell>No</Table.HeaderCell>
+                                    <Table.HeaderCell>Name</Table.HeaderCell>
+                                    <Table.HeaderCell>Value</Table.HeaderCell>
+                                    <Table.HeaderCell>Profit</Table.HeaderCell>
+                                    <Table.HeaderCell>Date</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
-
                             {
                                 portfolio.length > 0 ? (
                                     <>
                                         <Table.Body>
-                                            <Table.Row>
-                                                <Table.Cell>Cell</Table.Cell>
-                                                <Table.Cell>Cell</Table.Cell>
-                                                <Table.Cell>Cell</Table.Cell>
-                                            </Table.Row>
+                                            {portfolio.map((item, index) => {
+                                                return <Table.Row key={index}>
+                                                    <Table.Cell>{index + 1}</Table.Cell>
+                                                    <Table.Cell>{item.name}</Table.Cell>
+                                                    <Table.Cell>${item.value}</Table.Cell>
+                                                    <Table.Cell>${item.profit}</Table.Cell>
+                                                    <Table.Cell>{new Date(item.created_at).toDateString()}</Table.Cell>
+                                                </Table.Row>
+                                            })}
                                         </Table.Body>
-                                        <Table.Footer>
+                                        {/* <Table.Footer>
                                             <Table.Row>
-                                                <Table.HeaderCell colSpan='3'>
-                                                    <Menu floated='right' pagination>
-                                                        <Menu.Item as='a' icon>
-                                                            <Icon name='chevron left' />
-                                                        </Menu.Item>
-                                                        <Menu.Item as='a'>1</Menu.Item>
-                                                        <Menu.Item as='a'>2</Menu.Item>
-                                                        <Menu.Item as='a'>3</Menu.Item>
-                                                        <Menu.Item as='a'>4</Menu.Item>
-                                                        <Menu.Item as='a' icon>
-                                                            <Icon name='chevron right' />
-                                                        </Menu.Item>
-                                                    </Menu>
+                                                <Table.HeaderCell colSpan='5'>
+                                                    <Pagination
+                                                        totalRecords={portfolio.length}
+                                                        pageLimit={pageItemCount}
+                                                        pageNeighbours={2}
+                                                        onPageChanged={onPageChanged}
+                                                        currentPage={currentPage}
+                                                    />
                                                 </Table.HeaderCell>
                                             </Table.Row>
-                                        </Table.Footer>
+                                        </Table.Footer> */}
                                     </>
                                 ) : (
                                     <Table.Body>
                                         <Table.Row textAlign='center'>
-                                            <Table.Cell colSpan='3'>There is no records</Table.Cell>
+                                            <Table.Cell colSpan='5'>There is no records</Table.Cell>
                                         </Table.Row>
                                     </Table.Body>
                                 )
