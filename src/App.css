@@ -1,3 +1,7 @@
+body {
+  user-select: none
+}
+
 .App {
   height: 100%;
   min-height: 400px;

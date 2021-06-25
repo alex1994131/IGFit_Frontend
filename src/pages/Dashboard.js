@@ -41,10 +41,14 @@ const Dashboard = (props) => {
     const [dataLoadedCfd, setDataLoadedCfd] = useState(0);
     const [dataLoadedShd, setDataLoadedShd] = useState(0);
 
+    const portfolio_id = props.match.params.id;
+
+    console.log('Portfolio ID ----------------------', portfolio_id)
+
+
     useEffect(() => {
         const fetchData = async () => {
             if (!fetch) {
-                console.log('-------------- Begin ----------------')
                 IG.downloadactivity(0, offlineMode).then((igdata) => {
                     var csvdata2 = igdata;
                     var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);

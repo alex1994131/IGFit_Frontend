@@ -8,6 +8,7 @@ import { BrowserRouter as Router } from "react-router-dom"
 
 const SignIn = lazy(() => import('./pages/SignIn'))
 const SignUp = lazy(() => import('./pages/Signup'))
+const Portfolio = lazy(() => import('./pages/Portfolio'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 
 const RouteConfig = ({ component: Component, layout, ...rest }) => {
@@ -34,7 +35,8 @@ const RouterManager = () => {
     return (
         <Router history={history}>
             <Switch>
-                <AppRoute exact path="/" component={Dashboard} layout='main' />
+                <AppRoute exact path="/" component={Portfolio} layout='main' />
+                <AppRoute exact path="/dashboard:id" component={Dashboard} layout='main' />
                 <AppRoute path="/signin" component={SignIn} layout='auth' />
                 <AppRoute path="/signup" component={SignUp} layout='auth' />
             </Switch>
