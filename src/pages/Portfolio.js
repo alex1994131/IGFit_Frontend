@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from "react-router-dom";
+import { useHistory } from "react-router";
 
 import { Container, Button, Icon, Table, Header, Modal, Input, Message } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
@@ -10,6 +12,8 @@ import { getPortfolio, newPortfolio } from '../stores/actions/portfolioAction';
 
 const Portfolio = (props) => {
 
+    const history = useHistory();
+
     const [error, setError] = useState("")
     const [portfolio, setPortfolio] = useState([]);
     const [newPortfolioName, setNewPortfolioName] = useState('')
@@ -20,22 +24,19 @@ const Portfolio = (props) => {
 
     const pageItemCount = 3
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentData, setCurrentData] = useState([])
+    const [currentData, setCurrentData] = useState([]);
 
     const prepareCurrentData = (data) => {
-        const cur_data = data.slice(
+        setCurrentData(data.slice(
             (currentPage - 1) * pageItemCount,
             (currentPage - 1) * pageItemCount + pageItemCount
-        );
-        setCurrentData(cur_data)
+        ))
     }
 
     const onPageChanged = useCallback(
         (event, page) => {
             event.preventDefault();
             setCurrentPage(page);
-            console.log(portfolio)
-            prepareCurrentData(portfolio)
         },
         [setCurrentPage]
     );
@@ -48,7 +49,11 @@ const Portfolio = (props) => {
         const accessToken = getSession()
         const res = await newPortfolio(newPortfolioName, accessToken);
         if (res.status) {
-            setPortfolio(res.data)
+            let data = res.data;
+            data.map((d, idx) => {
+                d.no = idx;
+            })
+            setPortfolio(data)
         }
         else {
             alert(res.message);
@@ -66,16 +71,32 @@ const Portfolio = (props) => {
         setErrorMessageOpen(true)
     }
 
+    const onDashboard = (e, id) => {
+        e.preventDefault()
+        // history.push(`dashboard/${id}`)
+        history.push(`dashboard`)
+    }
+
+    useEffect(() => {
+        prepareCurrentData(portfolio)
+    }, [currentPage])
+
+    useEffect(() => {
+        prepareCurrentData(portfolio)
+    }, [portfolio])
+
     useEffect(() => {
         const fetchData = async () => {
             if (!fetch) {
                 const accessToken = getSession()
-
                 const res = await getPortfolio(accessToken);
                 setFetch(1);
                 if (res.status) {
-                    setPortfolio(res.data)
-                    prepareCurrentData(res.data)
+                    let data = res.data;
+                    data.map((d, idx) => {
+                        d.no = idx;
+                    })
+                    setPortfolio(data);
                 }
                 else {
                     props.history.push("/signin");
@@ -128,7 +149,7 @@ const Portfolio = (props) => {
                         </Button>
                     </div>
                     <div>
-                        <Table sortable celled fixed selectable>
+                        <Table sortable celled selectable padded>
                             <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>No</Table.HeaderCell>
@@ -136,25 +157,32 @@ const Portfolio = (props) => {
                                     <Table.HeaderCell>Value</Table.HeaderCell>
                                     <Table.HeaderCell>Profit</Table.HeaderCell>
                                     <Table.HeaderCell>Date</Table.HeaderCell>
+                                    <Table.HeaderCell>Action</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
                             {
                                 portfolio.length > 0 ? (
                                     <>
                                         <Table.Body>
-                                            {portfolio.map((item, index) => {
+                                            {currentData.map((item, index) => {
                                                 return <Table.Row key={index}>
-                                                    <Table.Cell>{index + 1}</Table.Cell>
+                                                    <Table.Cell>{item.no + 1}</Table.Cell>
                                                     <Table.Cell>{item.name}</Table.Cell>
                                                     <Table.Cell>${item.value}</Table.Cell>
                                                     <Table.Cell>${item.profit}</Table.Cell>
                                                     <Table.Cell>{new Date(item.created_at).toDateString()}</Table.Cell>
+                                                    <Table.Cell textAlign='center'>
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <Button circular color='red' icon='hand point right' title='go to Dashboard' onClick={(e) => onDashboard(e, item._id)} />
+                                                            <Button circular color='blue' icon='plus' title='add transaction' />
+                                                        </div>
+                                                    </Table.Cell>
                                                 </Table.Row>
                                             })}
                                         </Table.Body>
-                                        {/* <Table.Footer>
+                                        <Table.Footer>
                                             <Table.Row>
-                                                <Table.HeaderCell colSpan='5'>
+                                                <Table.HeaderCell colSpan='6'>
                                                     <Pagination
                                                         totalRecords={portfolio.length}
                                                         pageLimit={pageItemCount}
@@ -164,12 +192,12 @@ const Portfolio = (props) => {
                                                     />
                                                 </Table.HeaderCell>
                                             </Table.Row>
-                                        </Table.Footer> */}
+                                        </Table.Footer>
                                     </>
                                 ) : (
                                     <Table.Body>
                                         <Table.Row textAlign='center'>
-                                            <Table.Cell colSpan='5'>There is no records</Table.Cell>
+                                            <Table.Cell colSpan='6'>There is no records</Table.Cell>
                                         </Table.Row>
                                     </Table.Body>
                                 )

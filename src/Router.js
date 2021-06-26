@@ -36,7 +36,8 @@ const RouterManager = () => {
         <Router history={history}>
             <Switch>
                 <AppRoute exact path="/" component={Portfolio} layout='main' />
-                <AppRoute exact path="/dashboard:id" component={Dashboard} layout='main' />
+                {/* <AppRoute path="/dashboard/:id" component={Dashboard} layout='main' /> */}
+                <AppRoute path="/dashboard/:id" component={Dashboard} layout='main' />
                 <AppRoute path="/signin" component={SignIn} layout='auth' />
                 <AppRoute path="/signup" component={SignUp} layout='auth' />
             </Switch>

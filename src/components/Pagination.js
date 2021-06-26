@@ -68,49 +68,41 @@ const Pagination = (props) => {
     return (
         <>
             <Menu floated='right' pagination>
-                <Menu.Item as='a' icon>
-                    <Icon name='chevron left' />
-                </Menu.Item>
                 {pages.map((page, index) => {
-                    // if (page === LEFT_PAGE)
-                    //     return (
-                    //         <li key={index} className="page-item">
-                    //             <a
-                    //                 href="/"
-                    //                 className="page-link"
-                    //                 aria-label="Previous"
-                    //                 onClick={(e) => onPageChanged(e, pageNeighbours * 2 - 1)}
-                    //             >
-                    //                 <span aria-hidden="true">&laquo;</span>
-                    //                 <span className="sr-only">Previous</span>
-                    //             </a>
-                    //         </li>
-                    //     );
+                    if (page === LEFT_PAGE) {
+                        return (
+                            <Menu.Item
+                                as='a'
+                                icon
+                                key={index}
+                                onClick={(e) => onPageChanged(e, pageNeighbours * 2 - 1)}
+                            >
+                                <Icon name='chevron left' />
+                            </Menu.Item>
+                        );
+                    }
 
-                    // if (page === RIGHT_PAGE)
-                    //     return (
-                    //         <li key={index} className="page-item">
-                    //             <a
-                    //                 className="page-link"
-                    //                 href="/"
-                    //                 aria-label="Next"
-                    //                 onClick={(e) => onPageChanged(e, pageNeighbours * 2 + 1)}
-                    //             >
-                    //                 <span aria-hidden="true">&raquo;</span>
-                    //                 <span className="sr-only">Next</span>
-                    //             </a>
-                    //         </li>
-                    //     );
+                    if (page === RIGHT_PAGE) {
+                        return (
+                            <Menu.Item
+                                as='a'
+                                icon
+                                key={index}
+                                onClick={(e) => onPageChanged(e, pageNeighbours * 2 + 1)}
+                            >
+                                <Icon name='chevron right' />
+                            </Menu.Item>
+                        );
+                    }
 
                     return (
-                        <Menu.Item as='a'
+                        <Menu.Item
+                            as='a'
+                            className={currentPage === page ? " active" : ""}
                             key={index}
                             onClick={(e) => onPageChanged(e, page)}>{page}</Menu.Item>
                     );
                 })}
-                <Menu.Item as='a' icon>
-                    <Icon name='chevron right' />
-                </Menu.Item>
             </Menu>
         </>
     );

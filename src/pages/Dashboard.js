@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
+import { useHistory } from "react-router";
 
 import { Container, Tab, Dropdown } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
@@ -25,6 +27,11 @@ import TableIG31 from "../components/table/TableIG3_1.tsx"
 const offlineMode = 1;
 
 const Dashboard = (props) => {
+
+    const history = useHistory();
+    const param = useParam();
+
+
     // const [data, setData] = useState([]);
     const [datatx, setDatatx] = useState([]);
     const [Px, setPx] = useState();
@@ -41,9 +48,9 @@ const Dashboard = (props) => {
     const [dataLoadedCfd, setDataLoadedCfd] = useState(0);
     const [dataLoadedShd, setDataLoadedShd] = useState(0);
 
-    const portfolio_id = props.match.params.id;
+    // const portfolio_id = props.match.params.id;
 
-    console.log('Portfolio ID ----------------------', portfolio_id)
+    console.log('Portfolio ID ----------------------', param)
 
 
     useEffect(() => {
