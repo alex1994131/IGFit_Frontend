@@ -73,8 +73,7 @@ const Portfolio = (props) => {
 
     const onDashboard = (e, id) => {
         e.preventDefault()
-        // history.push(`dashboard/${id}`)
-        history.push(`dashboard`)
+        history.push(`dashboard?id=${id}`)
     }
 
     useEffect(() => {

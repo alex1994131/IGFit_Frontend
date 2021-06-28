@@ -50,15 +50,3 @@ body {
   padding: .2em .3em;
   border-radius: .2em;
 }
-
-.current-page {
-  margin-top:0.5rem;
-  font-size: 0.8rem;
-  vertical-align: middle;
-}
-.pagination-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}

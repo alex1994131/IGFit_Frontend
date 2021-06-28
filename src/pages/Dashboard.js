@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 
-import { Container, Tab, Dropdown } from 'semantic-ui-react'
+import { Container, Tab, Dropdown, Button, Checkbox } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
 import * as IG from "../helpers/IGClient.js";
@@ -10,6 +10,7 @@ import { IGAccount } from "../helpers/IGAccount.ts";
 import * as Pocketsmith from "../helpers/Pocketsmith.js"
 import "../helpers/utils.js"
 
+import querystring from "query-string"
 import Table3 from "../components/table/Table3";
 import Table4 from "../components/table/Table4";
 import TableIG from "../components/table/TableIG";
@@ -29,7 +30,7 @@ const offlineMode = 1;
 const Dashboard = (props) => {
 
     const history = useHistory();
-    const param = useParam();
+    const param = useParams();
 
 
     // const [data, setData] = useState([]);
@@ -48,12 +49,10 @@ const Dashboard = (props) => {
     const [dataLoadedCfd, setDataLoadedCfd] = useState(0);
     const [dataLoadedShd, setDataLoadedShd] = useState(0);
 
-    // const portfolio_id = props.match.params.id;
-
-    console.log('Portfolio ID ----------------------', param)
-
-
     useEffect(() => {
+        let d = history.location.search
+        let params = querystring.parse(d)
+
         const fetchData = async () => {
             if (!fetch) {
                 IG.downloadactivity(0, offlineMode).then((igdata) => {
@@ -250,8 +249,17 @@ const Dashboard = (props) => {
         setTab("value" in data ? data.value : data.activeIndex);
     }
 
+
     return (
         <>
+            <Container fluid>
+                <div style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                    <Checkbox toggle label={<label>Onlne/Offline Mode</label>} />
+                    <Button style={{ marginLeft: "20px" }} onClick={(e) => { history.push('/') }}>
+                        Back
+                    </Button>
+                </div>
+            </Container>
             <Container fluid style={{ padding: "0 6px 0 6px" }}>
                 {<Dropdown
                     fluid
