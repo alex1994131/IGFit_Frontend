@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
+import querystring from "query-string"
 
 import { Container, Tab, Dropdown, Button, Checkbox } from 'semantic-ui-react'
+
 import 'semantic-ui-less/semantic.less'
 
 import * as IG from "../helpers/IGClient.js";
@@ -10,7 +12,7 @@ import { IGAccount } from "../helpers/IGAccount.ts";
 import * as Pocketsmith from "../helpers/Pocketsmith.js"
 import "../helpers/utils.js"
 
-import querystring from "query-string"
+import Transaction from '../components/Transaction';
 import Table3 from "../components/table/Table3";
 import Table4 from "../components/table/Table4";
 import TableIG from "../components/table/TableIG";
@@ -30,9 +32,9 @@ const offlineMode = 1;
 const Dashboard = (props) => {
 
     const history = useHistory();
-    const param = useParams();
 
 
+    const [parameter, setParameter] = useState({})
     // const [data, setData] = useState([]);
     const [datatx, setDatatx] = useState([]);
     const [Px, setPx] = useState();
@@ -50,11 +52,10 @@ const Dashboard = (props) => {
     const [dataLoadedShd, setDataLoadedShd] = useState(0);
 
     useEffect(() => {
-        let d = history.location.search
-        let params = querystring.parse(d)
-
         const fetchData = async () => {
             if (!fetch) {
+                let d = history.location.search
+                setParameter(querystring.parse(d))
                 IG.downloadactivity(0, offlineMode).then((igdata) => {
                     var csvdata2 = igdata;
                     var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);
@@ -82,6 +83,15 @@ const Dashboard = (props) => {
     });
 
     const panes = [
+        {
+            menuItem: 'Transaction',
+            pane: {
+                content: (<Transaction portfolio={parameter.id} />),
+                style: { marginTop: 0, marginBottom: 0 },
+                attached: false,
+                key: 'Transaction'
+            }
+        },
         {
             menuItem: 'Pricing',
             pane: {

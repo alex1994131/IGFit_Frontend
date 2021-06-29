@@ -5,18 +5,26 @@ import { useHistory } from "react-router";
 import { Container, Button, Icon, Table, Header, Modal, Input, Message } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
-import Pagination from '../components/Pagination'
+import Pagination from './Pagination'
 
 import { getSession } from '../stores/actions/userAction';
-import { getPortfolio, newPortfolio } from '../stores/actions/portfolioAction';
+import { getTransaction, addTransaction, deleteTransaction } from '../stores/actions/transactionAction';
 
-const Portfolio = (props) => {
+const Transaction = (props) => {
 
     const history = useHistory();
 
+    const [portfolio, setPortfolio] = useState('');
     const [error, setError] = useState("")
-    const [portfolio, setPortfolio] = useState([]);
-    const [newPortfolioName, setNewPortfolioName] = useState('')
+    const [transaction, setTransaction] = useState([]);
+
+    const [transticket, setTransTicket] = useState('')
+    const [transdirection, setTransDirection] = useState('')
+    const [transprice, setTransPrice] = useState('')
+    const [transquantity, setTransQuantity] = useState('')
+    const [transcommission, setTransCommission] = useState('')
+    const [transcurrency, setTransCurrency] = useState('')
+
     const [modalOpen, setModalOpen] = React.useState(false)
     const [errorMessageOpen, setErrorMessageOpen] = React.useState(false)
 
@@ -41,19 +49,49 @@ const Portfolio = (props) => {
         [setCurrentPage]
     );
 
-    const onNewCreate = async (e) => {
-        if (!newPortfolioName) {
-            return setError('Please enter new portfolio name')
+    const onAddTransaction = async (e) => {
+        if (!transticket) {
+            return setError('Please enter ticket')
+        }
+
+        if (!transdirection) {
+            return setError('Please enter Direction')
+        }
+
+        if (!transprice) {
+            return setError('Please enter Price')
+        }
+
+        if (!transquantity) {
+            return setError('Please enter Quantity')
+        }
+
+        if (!transcommission) {
+            return setError('Please enter Quantity')
+        }
+
+        if (!transcurrency) {
+            return setError('Please enter Quantity')
+        }
+
+        const transaction_data = {
+            portfolio: portfolio,
+            ticker: transticket,
+            direction: transdirection,
+            price: transprice,
+            quantity: transquantity,
+            commission: transcommission,
+            currency: transcurrency
         }
 
         const accessToken = getSession()
-        const res = await newPortfolio(newPortfolioName, accessToken);
+        const res = await addTransaction(transaction_data, accessToken);
         if (res.status) {
             let data = res.data;
             data.map((d, idx) => {
                 d.no = idx;
             })
-            setPortfolio(data)
+            setTransaction(data)
         }
         else {
             alert(res.message);
@@ -62,43 +100,75 @@ const Portfolio = (props) => {
         setModalOpen(false)
     }
 
-    const onNewPortfolioNameChange = (e) => {
-        setNewPortfolioName(e.target.value)
-    }
-
     const onDismiss = () => {
         setError("")
         setErrorMessageOpen(true)
     }
 
-    const onDashboard = (e, id) => {
-        e.preventDefault()
-        history.push(`dashboard?id=${id}`)
+    const onTicketChange = (e) => {
+        setTransTicket(e.target.value)
+    }
+
+    const onDirectionChange = (e) => {
+        setTransDirection(e.target.value)
+    }
+
+    const onPriceChange = (e) => {
+        setTransPrice(e.target.value)
+    }
+
+    const onQuantityChange = (e) => {
+        setTransQuantity(e.target.value)
+    }
+
+    const onCommissionChange = (e) => {
+        setTransCommission(e.target.value)
+    }
+
+    const onCurrencyChange = (e) => {
+        setTransCurrency(e.target.value)
+    }
+
+    const onDeleteTransaction = async (id) => {
+        const accessToken = getSession()
+        const res = await deleteTransaction(id, accessToken);
+        if (res.status) {
+            let data = res.data;
+            data.map((d, idx) => {
+                d.no = idx;
+            })
+            setTransaction(data)
+        }
+        else {
+            alert(res.message);
+        }
+
     }
 
     useEffect(() => {
-        prepareCurrentData(portfolio)
+        prepareCurrentData(transaction)
     }, [currentPage])
 
     useEffect(() => {
-        prepareCurrentData(portfolio)
-    }, [portfolio])
+        prepareCurrentData(transaction)
+    }, [transaction])
 
     useEffect(() => {
         const fetchData = async () => {
             if (!fetch) {
+                setPortfolio(props.portfolio);
                 const accessToken = getSession()
-                const res = await getPortfolio(accessToken);
+                const res = await getTransaction(accessToken, props.portfolio);
                 setFetch(1);
                 if (res.status) {
                     let data = res.data;
                     data.map((d, idx) => {
                         d.no = idx;
                     })
-                    setPortfolio(data);
+                    setTransaction(data);
                 }
                 else {
-                    props.history.push("/signin");
+                    history.push("/signin");
                 }
             }
         }
@@ -128,23 +198,28 @@ const Portfolio = (props) => {
                                 />
                             )
                         }
-                        <Input id="portfolio_name" onChange={onNewPortfolioNameChange} placeholder='Enter Portfolio Name ....' style={{ width: "100%" }} />
+                        <Input onChange={onTicketChange} placeholder='Enter Ticket ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <Input onChange={onDirectionChange} placeholder='Enter Direction ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <Input onChange={onPriceChange} placeholder='Enter Price ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <Input onChange={onQuantityChange} placeholder='Enter Quantity ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <Input onChange={onCommissionChange} placeholder='Enter Commission ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <Input onChange={onCurrencyChange} placeholder='Enter Currency ....' style={{ width: "100%", marginBottom: '10px' }} />
                     </div>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button color='red' onClick={() => setModalOpen(false)}>
                         <Icon name='remove' /> Cancel
                     </Button>
-                    <Button color='green' onClick={() => onNewCreate()}>
+                    <Button color='green' onClick={() => onAddTransaction()}>
                         <Icon name='checkmark' /> Save
                     </Button>
                 </Modal.Actions>
             </Modal>
             <Container fluid>
-                <div style={{ padding: "20px", maxWidth: "1400px", margin: "0 auto" }}>
+                <div style={{ padding: "20px", margin: "0 auto" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: "20px" }}>
-                        <Button id="new_portfolio" color='blue' size='large' onClick={() => setModalOpen(true)}>
-                            New Portfolio
+                        <Button color='blue' size='large' onClick={() => setModalOpen(true)}>
+                            Add Transaction
                         </Button>
                     </div>
                     <div>
@@ -152,27 +227,35 @@ const Portfolio = (props) => {
                             <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>No</Table.HeaderCell>
-                                    <Table.HeaderCell>Name</Table.HeaderCell>
-                                    <Table.HeaderCell>Value</Table.HeaderCell>
-                                    <Table.HeaderCell>Profit</Table.HeaderCell>
+                                    <Table.HeaderCell>Ticker</Table.HeaderCell>
                                     <Table.HeaderCell>Date</Table.HeaderCell>
+                                    <Table.HeaderCell>Direction</Table.HeaderCell>
+                                    <Table.HeaderCell>Price</Table.HeaderCell>
+                                    <Table.HeaderCell>Quantity</Table.HeaderCell>
+                                    <Table.HeaderCell>Commission</Table.HeaderCell>
+                                    <Table.HeaderCell>Currency</Table.HeaderCell>
+                                    <Table.HeaderCell>Total</Table.HeaderCell>
                                     <Table.HeaderCell>Action</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
                             {
-                                portfolio.length > 0 ? (
+                                transaction.length > 0 ? (
                                     <>
                                         <Table.Body>
                                             {currentData.map((item, index) => {
                                                 return <Table.Row key={index}>
                                                     <Table.Cell>{item.no + 1}</Table.Cell>
-                                                    <Table.Cell>{item.name}</Table.Cell>
-                                                    <Table.Cell>${item.value}</Table.Cell>
-                                                    <Table.Cell>${item.profit}</Table.Cell>
-                                                    <Table.Cell>{new Date(item.created_at).toDateString()}</Table.Cell>
+                                                    <Table.Cell>{item.ticker}</Table.Cell>
+                                                    <Table.Cell>{new Date(item.date).toDateString()}</Table.Cell>
+                                                    <Table.Cell>{item.direction}</Table.Cell>
+                                                    <Table.Cell>{item.price}</Table.Cell>
+                                                    <Table.Cell>{item.quantity}</Table.Cell>
+                                                    <Table.Cell>{item.commission}</Table.Cell>
+                                                    <Table.Cell>{item.currency}</Table.Cell>
+                                                    <Table.Cell>{item.price * item.quantity}</Table.Cell>
                                                     <Table.Cell textAlign='center'>
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                            <Button onClick={(e) => onDashboard(e, item._id)}>Go to Dashboard</Button>
+                                                            <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>
                                                         </div>
                                                     </Table.Cell>
                                                 </Table.Row>
@@ -180,9 +263,9 @@ const Portfolio = (props) => {
                                         </Table.Body>
                                         <Table.Footer>
                                             <Table.Row>
-                                                <Table.HeaderCell colSpan='6'>
+                                                <Table.HeaderCell colSpan='10'>
                                                     <Pagination
-                                                        totalRecords={portfolio.length}
+                                                        totalRecords={transaction.length}
                                                         pageLimit={pageItemCount}
                                                         pageNeighbours={2}
                                                         onPageChanged={onPageChanged}
@@ -195,7 +278,7 @@ const Portfolio = (props) => {
                                 ) : (
                                     <Table.Body>
                                         <Table.Row textAlign='center'>
-                                            <Table.Cell colSpan='6'>There is no records</Table.Cell>
+                                            <Table.Cell colSpan='10'>There is no records</Table.Cell>
                                         </Table.Row>
                                     </Table.Body>
                                 )
@@ -209,4 +292,4 @@ const Portfolio = (props) => {
     )
 }
 
-export default Portfolio
+export default Transaction
