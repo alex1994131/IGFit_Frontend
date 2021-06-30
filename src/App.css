@@ -50,3 +50,37 @@ body {
   padding: .2em .3em;
   border-radius: .2em;
 }
+
+.suggestion_container {
+  position: relative;
+  width: 100%;
+}
+
+.suggestion_wrapper {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  border-top: 1px solid #ccc;
+  z-index: 1;
+  background: #fff;
+  height: 200px;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.suggestion{
+  display: flex;
+  align-items: center;
+  cursor:pointer;
+  border:1px;
+  border-right: 1px solid #ccc;
+  height: 37px;
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding-left: 15px; 
+}
+
+.suggestion:hover{
+  background-color: #eee;
+}

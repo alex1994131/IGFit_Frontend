@@ -8,17 +8,19 @@ import 'semantic-ui-less/semantic.less'
 import Pagination from './Pagination'
 
 import { getSession } from '../stores/actions/userAction';
-import { getTransaction, addTransaction, deleteTransaction } from '../stores/actions/transactionAction';
+import { getTransaction, addTransaction, deleteTransaction, getStock } from '../stores/actions/transactionAction';
 
 const Transaction = (props) => {
 
     const history = useHistory();
 
+    const [stock, setStock] = useState([])
+
     const [portfolio, setPortfolio] = useState('');
     const [error, setError] = useState("")
     const [transaction, setTransaction] = useState([]);
 
-    const [transticket, setTransTicket] = useState('')
+    const [transname, setTransName] = useState('')
     const [transdirection, setTransDirection] = useState('')
     const [transprice, setTransPrice] = useState('')
     const [transquantity, setTransQuantity] = useState('')
@@ -50,8 +52,8 @@ const Transaction = (props) => {
     );
 
     const onAddTransaction = async (e) => {
-        if (!transticket) {
-            return setError('Please enter ticket')
+        if (!transname) {
+            return setError('Please enter Name/Ticker/Currency')
         }
 
         if (!transdirection) {
@@ -76,7 +78,7 @@ const Transaction = (props) => {
 
         const transaction_data = {
             portfolio: portfolio,
-            ticker: transticket,
+            name: transname,
             direction: transdirection,
             price: transprice,
             quantity: transquantity,
@@ -105,8 +107,8 @@ const Transaction = (props) => {
         setErrorMessageOpen(true)
     }
 
-    const onTicketChange = (e) => {
-        setTransTicket(e.target.value)
+    const onNameChange = (e) => {
+        setTransName(e.target.value)
     }
 
     const onDirectionChange = (e) => {
@@ -125,10 +127,6 @@ const Transaction = (props) => {
         setTransCommission(e.target.value)
     }
 
-    const onCurrencyChange = (e) => {
-        setTransCurrency(e.target.value)
-    }
-
     const onDeleteTransaction = async (id) => {
         const accessToken = getSession()
         const res = await deleteTransaction(id, accessToken);
@@ -144,6 +142,22 @@ const Transaction = (props) => {
         }
 
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (transname === '') return null
+            const accessToken = getSession()
+            const result = await getStock(transname, accessToken)
+            if (result.status) {
+                console.log(result.data)
+                setStock(result.data)
+            }
+            else {
+                alert(result.data)
+            }
+        }
+        fetchData()
+    }, [transname])
 
     useEffect(() => {
         prepareCurrentData(transaction)
@@ -198,12 +212,20 @@ const Transaction = (props) => {
                                 />
                             )
                         }
-                        <Input onChange={onTicketChange} placeholder='Enter Ticket ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <div className="suggestion_container">
+                            <Input value={transname} onChange={onNameChange} placeholder='Enter Name ....' style={{ width: "100%", marginBottom: '10px' }} />
+                            {stock.length > 0 &&
+                                <div className="suggestion_wrapper">
+                                    {stock.map((sto, i) =>
+                                        <div className="suggestion" >{`${sto.Code} ${sto.Name} ${sto.Currency}`}</div>
+                                    )}
+                                </div>
+                            }
+                        </div>
                         <Input onChange={onDirectionChange} placeholder='Enter Direction ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onPriceChange} placeholder='Enter Price ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onQuantityChange} placeholder='Enter Quantity ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onCommissionChange} placeholder='Enter Commission ....' style={{ width: "100%", marginBottom: '10px' }} />
-                        <Input onChange={onCurrencyChange} placeholder='Enter Currency ....' style={{ width: "100%", marginBottom: '10px' }} />
                     </div>
                 </Modal.Content>
                 <Modal.Actions>
@@ -227,6 +249,7 @@ const Transaction = (props) => {
                             <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>No</Table.HeaderCell>
+                                    <Table.HeaderCell>Name</Table.HeaderCell>
                                     <Table.HeaderCell>Ticker</Table.HeaderCell>
                                     <Table.HeaderCell>Date</Table.HeaderCell>
                                     <Table.HeaderCell>Direction</Table.HeaderCell>
@@ -245,6 +268,7 @@ const Transaction = (props) => {
                                             {currentData.map((item, index) => {
                                                 return <Table.Row key={index}>
                                                     <Table.Cell>{item.no + 1}</Table.Cell>
+                                                    <Table.Cell>{item.name}</Table.Cell>
                                                     <Table.Cell>{item.ticker}</Table.Cell>
                                                     <Table.Cell>{new Date(item.date).toDateString()}</Table.Cell>
                                                     <Table.Cell>{item.direction}</Table.Cell>
@@ -252,7 +276,7 @@ const Transaction = (props) => {
                                                     <Table.Cell>{item.quantity}</Table.Cell>
                                                     <Table.Cell>{item.commission}</Table.Cell>
                                                     <Table.Cell>{item.currency}</Table.Cell>
-                                                    <Table.Cell>{item.price * item.quantity}</Table.Cell>
+                                                    <Table.Cell>{item.price * item.quantity + item.commission}</Table.Cell>
                                                     <Table.Cell textAlign='center'>
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                             <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>
@@ -263,7 +287,7 @@ const Transaction = (props) => {
                                         </Table.Body>
                                         <Table.Footer>
                                             <Table.Row>
-                                                <Table.HeaderCell colSpan='10'>
+                                                <Table.HeaderCell colSpan='11'>
                                                     <Pagination
                                                         totalRecords={transaction.length}
                                                         pageLimit={pageItemCount}
@@ -278,7 +302,7 @@ const Transaction = (props) => {
                                 ) : (
                                     <Table.Body>
                                         <Table.Row textAlign='center'>
-                                            <Table.Cell colSpan='10'>There is no records</Table.Cell>
+                                            <Table.Cell colSpan='11'>There is no records</Table.Cell>
                                         </Table.Row>
                                     </Table.Body>
                                 )
