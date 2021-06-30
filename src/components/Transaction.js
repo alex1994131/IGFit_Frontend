@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 
-import { Container, Button, Icon, Table, Header, Modal, Input, Message } from 'semantic-ui-react'
+import { Container, Button, Icon, Table, Header, Modal, Input, Message, Dropdown } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
 import Pagination from './Pagination'
@@ -15,17 +15,18 @@ const Transaction = (props) => {
     const history = useHistory();
 
     const [stock, setStock] = useState([])
+    const [displayDropDown, setDisplayDropDown] = useState([])
 
     const [portfolio, setPortfolio] = useState('');
     const [error, setError] = useState("")
     const [transaction, setTransaction] = useState([]);
 
     const [transname, setTransName] = useState('')
+    const [transticker, setTransTicker] = useState('')
     const [transdirection, setTransDirection] = useState('')
     const [transprice, setTransPrice] = useState('')
     const [transquantity, setTransQuantity] = useState('')
     const [transcommission, setTransCommission] = useState('')
-    const [transcurrency, setTransCurrency] = useState('')
 
     const [modalOpen, setModalOpen] = React.useState(false)
     const [errorMessageOpen, setErrorMessageOpen] = React.useState(false)
@@ -52,7 +53,7 @@ const Transaction = (props) => {
     );
 
     const onAddTransaction = async (e) => {
-        if (!transname) {
+        if (!transticker) {
             return setError('Please enter Name/Ticker/Currency')
         }
 
@@ -69,21 +70,16 @@ const Transaction = (props) => {
         }
 
         if (!transcommission) {
-            return setError('Please enter Quantity')
-        }
-
-        if (!transcurrency) {
-            return setError('Please enter Quantity')
+            return setError('Please enter Commission')
         }
 
         const transaction_data = {
             portfolio: portfolio,
-            name: transname,
+            ticker: transticker,
             direction: transdirection,
             price: transprice,
             quantity: transquantity,
-            commission: transcommission,
-            currency: transcurrency
+            commission: transcommission
         }
 
         const accessToken = getSession()
@@ -96,7 +92,7 @@ const Transaction = (props) => {
             setTransaction(data)
         }
         else {
-            alert(res.message);
+            alert(res.data);
         }
 
         setModalOpen(false)
@@ -109,6 +105,10 @@ const Transaction = (props) => {
 
     const onNameChange = (e) => {
         setTransName(e.target.value)
+    }
+
+    const onTickerChange = (e, data) => {
+        setTransTicker(data.value)
     }
 
     const onDirectionChange = (e) => {
@@ -129,7 +129,7 @@ const Transaction = (props) => {
 
     const onDeleteTransaction = async (id) => {
         const accessToken = getSession()
-        const res = await deleteTransaction(id, accessToken);
+        const res = await deleteTransaction(id, portfolio, accessToken);
         if (res.status) {
             let data = res.data;
             data.map((d, idx) => {
@@ -138,7 +138,7 @@ const Transaction = (props) => {
             setTransaction(data)
         }
         else {
-            alert(res.message);
+            alert(res.data);
         }
 
     }
@@ -158,6 +158,16 @@ const Transaction = (props) => {
         }
         fetchData()
     }, [transname])
+
+    useEffect(() => {
+        const stateOptions = _.map(stock, (sto, index) => ({
+            key: index,
+            text: `${sto.Name} (${sto.Code}, ${sto.Currency})`,
+            value: `${sto.Name}:${sto.Code}:${sto.Currency}`,
+        }))
+
+        setDisplayDropDown(stateOptions)
+    }, [stock])
 
     useEffect(() => {
         prepareCurrentData(transaction)
@@ -212,16 +222,7 @@ const Transaction = (props) => {
                                 />
                             )
                         }
-                        <div className="suggestion_container">
-                            <Input value={transname} onChange={onNameChange} placeholder='Enter Name ....' style={{ width: "100%", marginBottom: '10px' }} />
-                            {stock.length > 0 &&
-                                <div className="suggestion_wrapper">
-                                    {stock.map((sto, i) =>
-                                        <div className="suggestion" >{`${sto.Code} ${sto.Name} ${sto.Currency}`}</div>
-                                    )}
-                                </div>
-                            }
-                        </div>
+                        <Dropdown placeholder='Name/Ticker/Currency' style={{ width: '100%', marginBottom: '10px' }} search selection options={displayDropDown} onChange={onTickerChange} onSearchChange={onNameChange} />
                         <Input onChange={onDirectionChange} placeholder='Enter Direction ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onPriceChange} placeholder='Enter Price ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onQuantityChange} placeholder='Enter Quantity ....' style={{ width: "100%", marginBottom: '10px' }} />
@@ -276,7 +277,7 @@ const Transaction = (props) => {
                                                     <Table.Cell>{item.quantity}</Table.Cell>
                                                     <Table.Cell>{item.commission}</Table.Cell>
                                                     <Table.Cell>{item.currency}</Table.Cell>
-                                                    <Table.Cell>{item.price * item.quantity + item.commission}</Table.Cell>
+                                                    <Table.Cell>{(Number(item.price * item.quantity) + Number(item.commission))}</Table.Cell>
                                                     <Table.Cell textAlign='center'>
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                             <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>

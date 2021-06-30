@@ -15,9 +15,12 @@ export const addTransaction = async (data, token) => {
     return res.data
 }
 
-export const deleteTransaction = async (id, token) => {
+export const deleteTransaction = async (transaction, portfolio, token) => {
     axios_config.headers.Authorization = 'Bearer ' + token;
-    const res = await axios.create(axios_config).post(`/delete_transaction`, { id, id })
+    const res = await axios.create(axios_config).post(`/delete_transaction`, {
+        transaction: transaction,
+        portfolio: portfolio
+    })
     return res.data
 }
 
