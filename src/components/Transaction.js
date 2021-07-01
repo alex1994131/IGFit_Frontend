@@ -135,6 +135,7 @@ const Transaction = (props) => {
 
     const onTickerChange = (e, data) => {
         setTransTicker(data.value)
+        // setStock([])
     }
 
     const onDirectionChange = (e, data) => {
@@ -171,6 +172,11 @@ const Transaction = (props) => {
             alert(res.data);
         }
 
+    }
+
+    const onModalClose = () => {
+        setModalOpen(false)
+        setStock([])
     }
 
     useEffect(() => {
@@ -255,7 +261,7 @@ const Transaction = (props) => {
                 size='small'
                 open={modalOpen}
                 onOpen={() => setModalOpen(true)}
-                onClose={() => setModalOpen(false)}
+                onClose={() => onModalClose()}
             >
                 <Header icon='archive' content='Archive Old Messages' />
                 <Modal.Content>
