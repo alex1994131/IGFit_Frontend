@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from "react-router-dom";
+import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
 
 import { Container, Button, Icon, Table, Header, Modal, Input, Message, Dropdown } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
+import SemanticDatepicker from 'react-semantic-ui-datepickers';
+import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 import Pagination from './Pagination'
 
 import { getSession } from '../stores/actions/userAction';
 import { getTransaction, addTransaction, deleteTransaction, getStock } from '../stores/actions/transactionAction';
+
+const styles = useStyles({
+    fluidInput: {
+        width: '100%',
+        marginBottom: '10px'
+    }
+})
 
 const Transaction = (props) => {
 
@@ -24,6 +34,7 @@ const Transaction = (props) => {
     const [transname, setTransName] = useState('')
     const [transticker, setTransTicker] = useState('')
     const [transdirection, setTransDirection] = useState('')
+    const [transdate, setTransDate] = useState('')
     const [transprice, setTransPrice] = useState('')
     const [transquantity, setTransQuantity] = useState('')
     const [transcommission, setTransCommission] = useState('')
@@ -36,6 +47,16 @@ const Transaction = (props) => {
     const pageItemCount = 10
     const [currentPage, setCurrentPage] = useState(1);
     const [currentData, setCurrentData] = useState([]);
+
+    const directionOptions = [{
+        key: 1,
+        text: 'BUY',
+        value: 'BUY',
+    }, {
+        key: 2,
+        text: 'SELL',
+        value: 'SELL',
+    }]
 
     const prepareCurrentData = (data) => {
         setCurrentData(data.slice(
@@ -61,6 +82,10 @@ const Transaction = (props) => {
             return setError('Please enter Direction')
         }
 
+        if (!transdate) {
+            return setError('Please enter Date')
+        }
+
         if (!transprice) {
             return setError('Please enter Price')
         }
@@ -77,6 +102,7 @@ const Transaction = (props) => {
             portfolio: portfolio,
             ticker: transticker,
             direction: transdirection,
+            date: transdate,
             price: transprice,
             quantity: transquantity,
             commission: transcommission
@@ -111,8 +137,12 @@ const Transaction = (props) => {
         setTransTicker(data.value)
     }
 
-    const onDirectionChange = (e) => {
-        setTransDirection(e.target.value)
+    const onDirectionChange = (e, data) => {
+        setTransDirection(data.value)
+    }
+
+    const onDateChange = (e, data) => {
+        setTransDate(data.value)
     }
 
     const onPriceChange = (e) => {
@@ -145,28 +175,47 @@ const Transaction = (props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (transname === '') return null
-            const accessToken = getSession()
-            const result = await getStock(transname, accessToken)
-            if (result.status) {
-                console.log(result.data)
-                setStock(result.data)
+            console.log(transname)
+            if (transname === '') {
+                console.log('aaaaaaaaaaaaaa')
+                setStock([])
             }
             else {
-                alert(result.data)
+                console.log('bbbbbbbbbbbb')
+                const accessToken = getSession()
+                const result = await getStock(transname, accessToken)
+                if (result.status) {
+                    console.log(result.data)
+                    console.log(transname)
+                    console.log(typeof transname === typeof '')
+                    if (transname === '') {
+                        setStock([])
+                    }
+                    else {
+                        setStock(result.data)
+                    }
+                }
+                else {
+                    alert(result.data)
+                }
             }
         }
         fetchData()
     }, [transname])
 
     useEffect(() => {
-        const stateOptions = _.map(stock, (sto, index) => ({
-            key: index,
-            text: `${sto.Name} (${sto.Code}, ${sto.Currency})`,
-            value: `${sto.Name}:${sto.Code}:${sto.Currency}`,
-        }))
+        if (stock.length === 0) {
+            setDisplayDropDown([])
+        }
+        else {
+            const stateOptions = _.map(stock, (sto, index) => ({
+                key: index,
+                text: `${sto.Name} (${sto.Code}, ${sto.Currency})`,
+                value: `${sto.Name}:${sto.Code}:${sto.Currency}`,
+            }))
 
-        setDisplayDropDown(stateOptions)
+            setDisplayDropDown(stateOptions)
+        }
     }, [stock])
 
     useEffect(() => {
@@ -223,7 +272,10 @@ const Transaction = (props) => {
                             )
                         }
                         <Dropdown placeholder='Name/Ticker/Currency' style={{ width: '100%', marginBottom: '10px' }} search selection options={displayDropDown} onChange={onTickerChange} onSearchChange={onNameChange} />
-                        <Input onChange={onDirectionChange} placeholder='Enter Direction ....' style={{ width: "100%", marginBottom: '10px' }} />
+                        <Dropdown placeholder='Direction' onChange={onDirectionChange} style={{ width: '100%', marginBottom: '10px' }} fluid selection options={directionOptions} />
+                        <div className='dateContainer'>
+                            <SemanticDatepicker className='fluid-input' onChange={onDateChange} />
+                        </div>
                         <Input onChange={onPriceChange} placeholder='Enter Price ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onQuantityChange} placeholder='Enter Quantity ....' style={{ width: "100%", marginBottom: '10px' }} />
                         <Input onChange={onCommissionChange} placeholder='Enter Commission ....' style={{ width: "100%", marginBottom: '10px' }} />

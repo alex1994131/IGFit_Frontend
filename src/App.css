@@ -84,3 +84,16 @@ body {
 .suggestion:hover{
   background-color: #eee;
 }
+
+.dateContainer {
+  width: 100%;
+}
+
+.dateContainer .field {
+  width: 100%;
+}
+
+.fluid-input {
+  width: 100%;
+  margin-bottom: 10px;
+}

@@ -29,6 +29,7 @@
     "react-router-dom": "^5.2.0",
     "react-semantic-ui-datepickers": "^2.13.1",
     "react-sticky": "^6.0.3",
+    "react-styles-hook": "^1.1.2",
     "redux-debounced": "^0.5.0",
     "redux-thunk": "^2.3.0",
     "semantic-ui-css": "^2.4.1",
