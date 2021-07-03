@@ -27,12 +27,14 @@ import TablePxAcc from "../components/table/TablePxAcc";
 import TablePx4 from "../components/table/TablePx4"
 import TableIG31 from "../components/table/TableIG3_1.tsx"
 
+import { getSession } from '../stores/actions/userAction';
+import { getPrice } from '../stores/actions/priceAction';
+
 const offlineMode = 1;
 
 const Dashboard = (props) => {
 
     const history = useHistory();
-
 
     const [parameter, setParameter] = useState({})
     // const [data, setData] = useState([]);
@@ -50,6 +52,8 @@ const Dashboard = (props) => {
     const [dataLoaded, setDataLoaded] = useState(0);
     const [dataLoadedCfd, setDataLoadedCfd] = useState(0);
     const [dataLoadedShd, setDataLoadedShd] = useState(0);
+
+    const [priceData, setPriceData] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -76,6 +80,19 @@ const Dashboard = (props) => {
                     setDatatx(data);
                     setPx(new Pocketsmith.Px(data));
                 });
+
+
+                // const accessToken = getSession()
+                // const price_result = await getPrice(accessToken)
+                // const result = await getStock(transname, accessToken)
+                // if (result.status) {
+                //     setPriceData(result.data)
+                // }
+                // else {
+                //     alert(result.data)
+                // }
+
+
                 setFetch(1);
             }
         };

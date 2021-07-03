@@ -304,18 +304,18 @@ const Transaction = (props) => {
                         </Button>
                     </div>
                     <div>
-                        <Table sortable celled selectable padded>
+                        <Table sortable celled selectable padded singleLine>
                             <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>No</Table.HeaderCell>
+                                    <Table.HeaderCell>Date</Table.HeaderCell>
                                     <Table.HeaderCell>Name</Table.HeaderCell>
                                     <Table.HeaderCell>Ticker</Table.HeaderCell>
-                                    <Table.HeaderCell>Date</Table.HeaderCell>
                                     <Table.HeaderCell>Direction</Table.HeaderCell>
+                                    <Table.HeaderCell>Currency</Table.HeaderCell>
                                     <Table.HeaderCell>Price</Table.HeaderCell>
                                     <Table.HeaderCell>Quantity</Table.HeaderCell>
                                     <Table.HeaderCell>Commission</Table.HeaderCell>
-                                    <Table.HeaderCell>Currency</Table.HeaderCell>
                                     <Table.HeaderCell>Total</Table.HeaderCell>
                                     <Table.HeaderCell>Action</Table.HeaderCell>
                                 </Table.Row>
@@ -326,16 +326,16 @@ const Transaction = (props) => {
                                         <Table.Body>
                                             {currentData.map((item, index) => {
                                                 return <Table.Row key={index}>
-                                                    <Table.Cell>{item.no + 1}</Table.Cell>
-                                                    <Table.Cell>{item.name}</Table.Cell>
-                                                    <Table.Cell>{item.ticker}</Table.Cell>
-                                                    <Table.Cell>{new Date(item.date).toDateString()}</Table.Cell>
-                                                    <Table.Cell>{item.direction}</Table.Cell>
-                                                    <Table.Cell>{item.price}</Table.Cell>
-                                                    <Table.Cell>{item.quantity}</Table.Cell>
-                                                    <Table.Cell>{item.commission}</Table.Cell>
-                                                    <Table.Cell>{item.currency}</Table.Cell>
-                                                    <Table.Cell>{(Number(item.price * item.quantity) + Number(item.commission))}</Table.Cell>
+                                                    <Table.Cell textAlign='left'>{item.no + 1}</Table.Cell>
+                                                    <Table.Cell textAlign='left'>{new Date(item.date).toDateString().split(' ').slice(1).join(' ')}</Table.Cell>
+                                                    <Table.Cell textAlign='left'>{item.name}</Table.Cell>
+                                                    <Table.Cell textAlign='left'>{item.ticker}</Table.Cell>
+                                                    <Table.Cell textAlign='center'>{item.direction}</Table.Cell>
+                                                    <Table.Cell textAlign='center'>{item.currency}</Table.Cell>
+                                                    <Table.Cell textAlign='right'>{(Math.round(item.price * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                    <Table.Cell textAlign='right'>{(Math.round(item.quantity * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                    <Table.Cell textAlign='right'>{(Math.round(item.commission * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                    <Table.Cell textAlign='right'>{(Math.round((Number(item.price * item.quantity) + Number(item.commission)) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
                                                     <Table.Cell textAlign='center'>
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                             <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>
