@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MUIDataTable, { debounceSearchRender } from "mui-datatables";
 import * as AntChart from '@ant-design/charts';
-import { txdata2 } from "../data/txdata.js";
+import { txdata2 } from "../../data/txdata.js";
 
 import { makeStyles } from "@material-ui/core/styles";
 import * as Pocketsmith from "../Pocketsmith.js"
