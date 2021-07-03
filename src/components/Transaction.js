@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
 
-import { Container, Button, Icon, Table, Header, Modal, Input, Message, Dropdown } from 'semantic-ui-react'
+import { Container, Button, Icon, Table, Header, Modal, Input, Message, Dropdown, Dimmer, Loader, Image, Segment } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
@@ -297,78 +297,85 @@ const Transaction = (props) => {
                 </Modal.Actions>
             </Modal>
             <Container fluid>
-                <div style={{ padding: "20px", margin: "0 auto" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: "20px" }}>
-                        <Button color='blue' size='large' onClick={() => setModalOpen(true)}>
-                            Add Transaction
-                        </Button>
-                    </div>
-                    <div>
-                        <Table sortable celled selectable padded>
-                            <Table.Header>
-                                <Table.Row>
-                                    <Table.HeaderCell>No</Table.HeaderCell>
-                                    <Table.HeaderCell>Name</Table.HeaderCell>
-                                    <Table.HeaderCell>Ticker</Table.HeaderCell>
-                                    <Table.HeaderCell>Date</Table.HeaderCell>
-                                    <Table.HeaderCell>Direction</Table.HeaderCell>
-                                    <Table.HeaderCell>Price</Table.HeaderCell>
-                                    <Table.HeaderCell>Quantity</Table.HeaderCell>
-                                    <Table.HeaderCell>Commission</Table.HeaderCell>
-                                    <Table.HeaderCell>Currency</Table.HeaderCell>
-                                    <Table.HeaderCell>Total</Table.HeaderCell>
-                                    <Table.HeaderCell>Action</Table.HeaderCell>
-                                </Table.Row>
-                            </Table.Header>
-                            {
-                                transaction.length > 0 ? (
-                                    <>
-                                        <Table.Body>
-                                            {currentData.map((item, index) => {
-                                                return <Table.Row key={index}>
-                                                    <Table.Cell>{item.no + 1}</Table.Cell>
-                                                    <Table.Cell>{item.name}</Table.Cell>
-                                                    <Table.Cell>{item.ticker}</Table.Cell>
-                                                    <Table.Cell>{new Date(item.date).toDateString()}</Table.Cell>
-                                                    <Table.Cell>{item.direction}</Table.Cell>
-                                                    <Table.Cell>{item.price}</Table.Cell>
-                                                    <Table.Cell>{item.quantity}</Table.Cell>
-                                                    <Table.Cell>{item.commission}</Table.Cell>
-                                                    <Table.Cell>{item.currency}</Table.Cell>
-                                                    <Table.Cell>{(Number(item.price * item.quantity) + Number(item.commission))}</Table.Cell>
-                                                    <Table.Cell textAlign='center'>
-                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                            <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>
-                                                        </div>
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            })}
-                                        </Table.Body>
-                                        <Table.Footer>
+                {
+                    !fetch ? (
+                        <>
+                            <Loader active inline='centered' size='massive' style={{ marginTop: '20%' }} />
+                        </>)
+                        : (
+                            <div style={{ padding: "20px", margin: "0 auto" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: "20px" }}>
+                                    <Button color='blue' size='large' onClick={() => setModalOpen(true)}>
+                                        Add Transaction
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Table sortable celled selectable padded singleLine>
+                                        <Table.Header>
                                             <Table.Row>
-                                                <Table.HeaderCell colSpan='11'>
-                                                    <Pagination
-                                                        totalRecords={transaction.length}
-                                                        pageLimit={pageItemCount}
-                                                        pageNeighbours={2}
-                                                        onPageChanged={onPageChanged}
-                                                        currentPage={currentPage}
-                                                    />
-                                                </Table.HeaderCell>
+                                                <Table.HeaderCell>No</Table.HeaderCell>
+                                                <Table.HeaderCell>Date</Table.HeaderCell>
+                                                <Table.HeaderCell>Name</Table.HeaderCell>
+                                                <Table.HeaderCell>Ticker</Table.HeaderCell>
+                                                <Table.HeaderCell>Direction</Table.HeaderCell>
+                                                <Table.HeaderCell>Currency</Table.HeaderCell>
+                                                <Table.HeaderCell>Price</Table.HeaderCell>
+                                                <Table.HeaderCell>Quantity</Table.HeaderCell>
+                                                <Table.HeaderCell>Commission</Table.HeaderCell>
+                                                <Table.HeaderCell>Total</Table.HeaderCell>
+                                                <Table.HeaderCell>Action</Table.HeaderCell>
                                             </Table.Row>
-                                        </Table.Footer>
-                                    </>
-                                ) : (
-                                    <Table.Body>
-                                        <Table.Row textAlign='center'>
-                                            <Table.Cell colSpan='11'>There is no records</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                )
-                            }
-                        </Table>
-                    </div>
-                </div>
+                                        </Table.Header>
+                                        {
+                                            transaction.length > 0 ? (
+                                                <>
+                                                    <Table.Body>
+                                                        {currentData.map((item, index) => {
+                                                            return <Table.Row key={index}>
+                                                                <Table.Cell textAlign='left'>{item.no + 1}</Table.Cell>
+                                                                <Table.Cell textAlign='left'>{new Date(item.date).toDateString().split(' ').slice(1).join(' ')}</Table.Cell>
+                                                                <Table.Cell textAlign='left'>{item.name}</Table.Cell>
+                                                                <Table.Cell textAlign='left'>{item.ticker}</Table.Cell>
+                                                                <Table.Cell textAlign='center'>{item.direction}</Table.Cell>
+                                                                <Table.Cell textAlign='center'>{item.currency}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(item.price * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(item.quantity * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(item.commission * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round((Number(item.price * item.quantity) + Number(item.commission)) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='center'>
+                                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                        <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>
+                                                                    </div>
+                                                                </Table.Cell>
+                                                            </Table.Row>
+                                                        })}
+                                                    </Table.Body>
+                                                    <Table.Footer>
+                                                        <Table.Row>
+                                                            <Table.HeaderCell colSpan='11'>
+                                                                <Pagination
+                                                                    totalRecords={transaction.length}
+                                                                    pageLimit={pageItemCount}
+                                                                    pageNeighbours={2}
+                                                                    onPageChanged={onPageChanged}
+                                                                    currentPage={currentPage}
+                                                                />
+                                                            </Table.HeaderCell>
+                                                        </Table.Row>
+                                                    </Table.Footer>
+                                                </>
+                                            ) : (
+                                                <Table.Body>
+                                                    <Table.Row textAlign='center'>
+                                                        <Table.Cell colSpan='11'>There is no records</Table.Cell>
+                                                    </Table.Row>
+                                                </Table.Body>
+                                            )
+                                        }
+                                    </Table>
+                                </div>
+                            </div>
+                        )}
             </Container>
         </>
 
