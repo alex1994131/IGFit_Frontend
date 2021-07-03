@@ -1,8 +1,9 @@
 export const axios_config = {
     headers: {
+        "Access-Control-Allow-Origin": "*",
         'Content-Type': 'application/json'
     },
-    baseURL: 'http://localhost:3000/'
+    baseURL: 'https://faasd.tyap.cloud/function/userapi/'//'http://localhost:3000/'
 };
 
 export const eodhistorical_api = {
