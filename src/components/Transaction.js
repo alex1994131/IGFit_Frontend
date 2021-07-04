@@ -24,12 +24,14 @@ const Transaction = (props) => {
 
     const history = useHistory();
 
+    const [transaction, setTransaction] = useState([]);
+    const [dataLoaded, setDataLoaded] = useState(props.dataLoaded);
+
     const [stock, setStock] = useState([])
     const [displayDropDown, setDisplayDropDown] = useState([])
 
     const [portfolio, setPortfolio] = useState('');
     const [error, setError] = useState("")
-    const [transaction, setTransaction] = useState([]);
 
     const [transname, setTransName] = useState('')
     const [transticker, setTransTicker] = useState('')
@@ -41,8 +43,6 @@ const Transaction = (props) => {
 
     const [modalOpen, setModalOpen] = React.useState(false)
     const [errorMessageOpen, setErrorMessageOpen] = React.useState(false)
-
-    const [fetch, setFetch] = useState(0);
 
     const pageItemCount = 10
     const [currentPage, setCurrentPage] = useState(1);
@@ -232,27 +232,38 @@ const Transaction = (props) => {
         prepareCurrentData(transaction)
     }, [transaction])
 
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         if (!fetch) {
+    //             setPortfolio(props.portfolio);
+    //             const accessToken = getSession()
+    //             const res = await getTransaction(accessToken, props.portfolio);
+    //             setFetch(1);
+    //             if (res.status) {
+    //                 let data = res.data;
+    //                 data.map((d, idx) => {
+    //                     d.no = idx;
+    //                 })
+    //                 setTransaction(data);
+    //             }
+    //             else {
+    //                 history.push("/signin");
+    //             }
+    //         }
+    //     }
+    //     fetchData()
+    // });
+
     useEffect(() => {
-        const fetchData = async () => {
-            if (!fetch) {
-                setPortfolio(props.portfolio);
-                const accessToken = getSession()
-                const res = await getTransaction(accessToken, props.portfolio);
-                setFetch(1);
-                if (res.status) {
-                    let data = res.data;
-                    data.map((d, idx) => {
-                        d.no = idx;
-                    })
-                    setTransaction(data);
-                }
-                else {
-                    history.push("/signin");
-                }
-            }
+        setDataLoaded(props.dataLoaded)
+        let data = props.transactions.data;
+        if (data) {
+            data.map((d, idx) => {
+                d.no = idx;
+            })
+            setTransaction(data);
         }
-        fetchData()
-    });
+    }, [props.dataLoaded]);
 
     return (
         <>
@@ -298,7 +309,7 @@ const Transaction = (props) => {
             </Modal>
             <Container fluid>
                 {
-                    !fetch ? (
+                    !dataLoaded ? (
                         <>
                             <Loader active inline='centered' size='massive' style={{ marginTop: '20%' }} />
                         </>)

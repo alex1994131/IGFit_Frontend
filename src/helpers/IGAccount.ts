@@ -208,6 +208,8 @@ export const IGAccount = class IGAccount {
             this.loadISA(csvData);
         }  else if(type == "CFD") {
             this.loadCFD(csvData);
+        } else if(type == 'MANUALINPUT') {
+            this.loadManualInput(csvData)
         }
     }
 
@@ -353,6 +355,44 @@ export const IGAccount = class IGAccount {
         
         //this.setData(this.positionsBetweenDate());
         //var newpos = this.positionAsOfDate(new Date("2020-06-01"));
+    }
+
+    loadManualInput(csvData) {
+        // this.positions = {};
+        // this.transactions = [];
+        // this.load_prices = [];
+        // this.load_currency = [];
+
+        // var tx = rowsToObjects(csvData[0], csvData.slice(1));
+        // tx.sort((a, b) => {
+        //     var ad = new Date(a.Date + " " + a.Time).getTime();
+        //     var bd = new Date(b.Date + " " + b.Time).getTime();
+        //     return ad - bd;
+        // });
+
+        // this.start_date = new Date(tx[0].Date);
+        // if (!this.offlineMode) {
+        //     this.end_date = new Date();
+        //     this.end_date.setHours(0, 0, 0, 0);
+        // } else {
+        //     var sortedPrices = prices_offline[Object.keys(prices_offline)[0]].sort((a, b) => {
+        //         var compare_date = new Date(a.date);
+        //         var compare_date2 = new Date(b.date);
+        //         return compare_date2.getTime() - compare_date.getTime();
+        //     });
+        //     this.end_date = new Date(sortedPrices[0].date);
+        //     this.end_date.setHours(0, 0, 0, 0);
+        // }
+
+        // for (var i = 0; i < tx.length; i++) {
+        //     var date = new Date(tx[i].Date + " " + tx[i].Time);
+        //     this.addTransaction(tx[i].Market, date, tx[i]);
+        // }
+        // this.load_currency.push(this.findticker("GBPUSD", "USD"));
+        // this.load_currency.push(this.findticker("GBPEUR", "EUR"));
+        // this.transactions = tx;
+        // this.data = this.positionsBetweenDate().then((resp)=>{this.data=resp;this.setDataLoaded(1);return resp;});
+        
     }
 
     getData() {

@@ -1,5 +1,7 @@
 //import fetch from "node-fetch";
 
+import { getTransaction } from '../stores/actions/transactionAction';
+import { getSession } from '../stores/actions/userAction';
 import { csvdata } from "../data/csvdata";
 
 // function updateIGCSV(csvToUpdate, sheetFrom, sheetTo, lasttxcolumn, copyrange="") {
@@ -471,5 +473,11 @@ export async function downloadactivity2() {
     // updateDays(5, 2);
 
     return IG_CSV;
+}
+
+export async function getTransactions(portfolio) {
+    const accessToken = getSession()
+    const res = await getTransaction(accessToken, portfolio);
+    return res;
 }
 
