@@ -31,6 +31,7 @@ import { getSession } from '../stores/actions/userAction';
 import { getPrice } from '../stores/actions/priceAction';
 
 const offlineMode = 1;
+const newApi = 0;
 
 const Dashboard = (props) => {
 
@@ -60,21 +61,32 @@ const Dashboard = (props) => {
             if (!fetch) {
                 let d = history.location.search
                 setParameter(querystring.parse(d))
-                IG.downloadactivity(0, offlineMode).then((igdata) => {
-                    var csvdata2 = igdata;
-                    var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);
-                    if (!offlineMode) {
-                        var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
-                        var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd);
-                    } else {
-                        var acc3 = acc2;
-                        var acc4 = acc2;
-                    }
-                    setAcc(acc2);
-                    // setAccCfd(acc3);
-                    // setAccShd(acc4);
-                    //setDataLoaded(1);
-                });
+                console.log(d)
+
+                if (newApi == 0) {
+                    IG.downloadactivity(0, offlineMode).then((igdata) => {
+                        var csvdata2 = igdata;
+                        var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);
+                        if (!offlineMode) {
+                            var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
+                            var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd);
+                        } else {
+                            var acc3 = acc2;
+                            var acc4 = acc2;
+                        }
+                        setAcc(acc2);
+                        // setAccCfd(acc3);
+                        // setAccShd(acc4);
+                        //setDataLoaded(1);
+                    });
+                }
+                else {
+                    // IG.getTransactions(current_portfolio).then((transactions) => {
+                    //     var igAccount = new IGAccount(transactions, "MANUALINPUT", offlineMode, setDataLoaded);
+                    //     setAcc(igAccount);
+                    // });
+                }
+
                 Pocketsmith.fetchAllTransactions(offlineMode).then((tx) => {
                     var data = tx.map((element) => JSON.flatten(element));
                     setDatatx(data);
@@ -92,10 +104,10 @@ const Dashboard = (props) => {
                 //     alert(result.data)
                 // }
 
-
                 setFetch(1);
             }
         };
+
         fetchData();
     });
 
