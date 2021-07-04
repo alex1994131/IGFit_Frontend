@@ -31,13 +31,15 @@ import { getSession } from '../stores/actions/userAction';
 import { getPrice } from '../stores/actions/priceAction';
 
 const offlineMode = 1;
-const newApi = 0;
+const newApi = 1;
 
 const Dashboard = (props) => {
 
     const history = useHistory();
 
     const [parameter, setParameter] = useState({})
+    const [transactions, setTransaction] = useState([]);
+
     // const [data, setData] = useState([]);
     const [datatx, setDatatx] = useState([]);
     const [Px, setPx] = useState();
@@ -60,8 +62,8 @@ const Dashboard = (props) => {
         const fetchData = async () => {
             if (!fetch) {
                 let d = history.location.search
-                setParameter(querystring.parse(d))
-                console.log(d)
+                const current_portfolio = querystring.parse(d)
+                setParameter(current_portfolio)
 
                 if (newApi == 0) {
                     IG.downloadactivity(0, offlineMode).then((igdata) => {
@@ -81,10 +83,13 @@ const Dashboard = (props) => {
                     });
                 }
                 else {
-                    // IG.getTransactions(current_portfolio).then((transactions) => {
-                    //     var igAccount = new IGAccount(transactions, "MANUALINPUT", offlineMode, setDataLoaded);
-                    //     setAcc(igAccount);
-                    // });
+
+                    IG.getTransactions(current_portfolio.id).then((transactions) => {
+                        setTransaction(transactions)
+                        setDataLoaded(1)
+                        // var igAccount = new IGAccount(transactions, "MANUALINPUT", offlineMode, setDataLoaded);
+                        // setAcc(igAccount);
+                    });
                 }
 
                 Pocketsmith.fetchAllTransactions(offlineMode).then((tx) => {
@@ -115,7 +120,7 @@ const Dashboard = (props) => {
         {
             menuItem: 'Transaction',
             pane: {
-                content: (<Transaction portfolio={parameter.id} />),
+                content: (<Transaction transactions={transactions} dataLoaded={dataLoaded} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Transaction'
