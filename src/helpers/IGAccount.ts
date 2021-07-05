@@ -44,6 +44,20 @@ interface TransactionCFD {
     "Order Stop Level": string,
 }
 
+interface TransactionManual {
+    _id: string,
+    name: any,
+    ticker: string,
+    exchange: string,
+    date: string,
+    direction: string,
+    price: string,
+    quantity: string,
+    commission: string,
+    currency: string,
+    total: string
+}
+
 interface TransactionISA {
     Date: string,    
     Time: string,    
@@ -268,6 +282,40 @@ export const IGAccount = class IGAccount {
         return tx;
     }
 
+    parseManualtx(manual_tx: TransactionManual[]): Transaction[] {
+        var tx: Transaction[] = [];
+        for (var transaction of manual_tx) {
+            var date = new Date(transaction.date);
+            var contractSizeRegex = /\([^0-9]*([0-9]+)(.*)\)/g;
+            var match = transaction.name.matchAll(contractSizeRegex);
+            var match2 : any = Array.from(match);
+            var contractSize = 1;
+            if (match2[0]?.length > 1) {
+                if (match2[0][2] == "oz") {
+                    contractSize = Number(match2[0][1])/100;
+                } else {
+                    contractSize = Number(match2[0][1]);
+                }
+            }
+            
+            var tx2: Transaction = {
+                Date: date,
+                Currency: transaction.currency,
+                Market: transaction.name,
+                Direction: transaction.direction,
+                Quantity: transaction.quantity,
+                Consideration: (-Number(transaction.quantity) * Number(transaction.price) * contractSize).toString(),
+                Commission: "0",
+                Charges: "0",
+                ContractSize: contractSize.toString(),
+                Epic: "",
+                Price: transaction.price
+            }
+            tx.push(tx2);
+        }
+        return tx;
+    }
+
     loadCFD(csvData) {
         this.positions = {};
         this.transactions = [];
@@ -281,7 +329,15 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
+        console.log('********************************')
+        console.log(tx)
+        console.log('********************************')
+
         tx = this.parseCFDtx(tx);
+
+        console.log('--------------------------------')
+        console.log(tx)
+        console.log('--------------------------------')
 
         this.start_date = new Date(tx[0].Date);
         if (!this.offlineMode) {
@@ -328,6 +384,10 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
+        console.log('--------------------------------')
+        console.log(tx)
+        console.log('--------------------------------')
+
         this.start_date = new Date(tx[0].Date);
         if (!this.offlineMode) {
             this.end_date = new Date();
@@ -364,39 +424,32 @@ export const IGAccount = class IGAccount {
         this.load_prices = [];
         this.load_currency = [];
 
-        csvData.sort((a, b) => {
+        var tx = csvData;
+
+        tx.sort((a, b) => {
             var ad = new Date(a.date).getTime();
-            var bd = new Date(b.Date).getTime();
+            var bd = new Date(b.date).getTime();
             return ad - bd;
         });
 
+        tx = this.parseManualtx(tx);
+
         console.log('--------------------------------')
-        console.log(csvData)
+        console.log(tx)
         console.log('--------------------------------')
 
-        this.start_date = new Date(csvData[0].Date);
-        if (!this.offlineMode) {
-            this.end_date = new Date();
-            this.end_date.setHours(0, 0, 0, 0);
-        } else {
-            var sortedPrices = prices_offline[Object.keys(prices_offline)[0]].sort((a, b) => {
-                var compare_date = new Date(a.date);
-                var compare_date2 = new Date(b.date);
-                return compare_date2.getTime() - compare_date.getTime();
-            });
-            this.end_date = new Date(sortedPrices[0].date);
-            this.end_date.setHours(0, 0, 0, 0);
+        this.start_date = new Date(tx[0].Date);
+        this.end_date = new Date();
+        this.end_date.setHours(0, 0, 0, 0);
+
+        for (var i = 0; i < tx.length; i++) {
+            var date = new Date(tx[i].Date);
+            this.addTransaction(tx[i].Market, date, tx[i]);
         }
-
-        // for (var i = 0; i < csvData.length; i++) {
-        //     var date = new Date(csvData[i].Date + " " + csvData[i].Time);
-        //     this.addTransaction(csvData[i].Market, date, csvData[i]);
-        // }
-        // this.load_currency.push(this.findticker("GBPUSD", "USD"));
-        // this.load_currency.push(this.findticker("GBPEUR", "EUR"));
-        // this.transactions = csvData;
-        // this.data = this.positionsBetweenDate().then((resp)=>{this.data=resp;this.setDataLoaded(1);return resp;});
-        
+        this.load_currency.push(this.findticker("GBPUSD", "USD"));
+        this.load_currency.push(this.findticker("GBPEUR", "EUR"));
+        this.transactions = tx;
+        this.data = this.positionsBetweenDate().then((resp)=>{this.data=resp;this.setDataLoaded(1);return resp;});
     }
 
     getData() {
@@ -410,6 +463,7 @@ export const IGAccount = class IGAccount {
         }
         data.Date = date;
         this.positions[market].tx.push(data);
+
     }
 
     addTransaction2(positions : Positions_On_Date, data : Transaction) {

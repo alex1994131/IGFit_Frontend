@@ -69,6 +69,7 @@ const Dashboard = (props) => {
                     IG.downloadactivity(0, offlineMode).then((igdata) => {
                         var csvdata2 = igdata;
                         var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);
+                        // var acc2 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
 
                         if (!offlineMode) {
                             var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
@@ -89,7 +90,7 @@ const Dashboard = (props) => {
                             setTransaction(transactions.data)
                             setDataLoaded(1)
                             var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded);
-                            // setAcc(igAccount);
+                            setAcc(igAccount);
                         }
                         else {
                             history.push("/signin");
