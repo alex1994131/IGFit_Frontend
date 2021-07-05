@@ -305,7 +305,7 @@ export const IGAccount = class IGAccount {
                 Direction: transaction.direction,
                 Quantity: transaction.quantity,
                 Consideration: (-Number(transaction.quantity) * Number(transaction.price) * contractSize).toString(),
-                Commission: "0",
+                Commission: transaction.commission,
                 Charges: "0",
                 ContractSize: contractSize.toString(),
                 Epic: "",
