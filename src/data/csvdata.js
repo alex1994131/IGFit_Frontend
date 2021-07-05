@@ -1,6 +1,6 @@
 export var csvdata = {
-  CFD: {
-    pnl: [
+    CFD: {
+        pnl: [
             [
                 "Closing Ref",
                 "Closed",
@@ -288,7 +288,7 @@ export var csvdata = {
                 "-513.89",
             ],
         ],
-    activity: [
+        activity: [
             [
                 "Epic",
                 "DealId",
@@ -990,7 +990,7 @@ export var csvdata = {
                 "-",
             ],
         ],
-    transactions: [
+        transactions: [
             [
                 "﻿Date",
                 "Summary",
@@ -2055,8 +2055,8 @@ export var csvdata = {
             ],
         ],
     },
-  ISA: {
-    trades: [
+    ISA: {
+        trades: [
             [
                 "Date",
                 "Time",
@@ -3698,7 +3698,7 @@ export var csvdata = {
                 "89L4G:778101~18002",
             ],
         ],
-    transactions: [
+        transactions: [
             [
                 "Date",
                 "Summary",
