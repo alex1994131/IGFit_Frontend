@@ -37,7 +37,7 @@ const Dashboard = (props) => {
 
     const history = useHistory();
 
-    const [parameter, setParameter] = useState({})
+    const [portfolio, setPortfolio] = useState({})
     const [transactions, setTransaction] = useState([]);
 
     // const [data, setData] = useState([]);
@@ -63,12 +63,13 @@ const Dashboard = (props) => {
             if (!fetch) {
                 let d = history.location.search
                 const current_portfolio = querystring.parse(d)
-                setParameter(current_portfolio)
+                setPortfolio(current_portfolio)
 
                 if (newApi == 0) {
                     IG.downloadactivity(0, offlineMode).then((igdata) => {
                         var csvdata2 = igdata;
                         var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);
+
                         if (!offlineMode) {
                             var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
                             var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd);
@@ -83,12 +84,16 @@ const Dashboard = (props) => {
                     });
                 }
                 else {
-
                     IG.getTransactions(current_portfolio.id).then((transactions) => {
-                        setTransaction(transactions)
-                        setDataLoaded(1)
-                        // var igAccount = new IGAccount(transactions, "MANUALINPUT", offlineMode, setDataLoaded);
-                        // setAcc(igAccount);
+                        if (transactions.status) {
+                            setTransaction(transactions.data)
+                            setDataLoaded(1)
+                            var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded);
+                            // setAcc(igAccount);
+                        }
+                        else {
+                            history.push("/signin");
+                        }
                     });
                 }
 
@@ -120,7 +125,7 @@ const Dashboard = (props) => {
         {
             menuItem: 'Transaction',
             pane: {
-                content: (<Transaction transactions={transactions} dataLoaded={dataLoaded} />),
+                content: (<Transaction transactions={transactions} portfolio={portfolio.id} dataLoaded={dataLoaded} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Transaction'
