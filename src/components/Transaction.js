@@ -11,7 +11,7 @@ import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 import Pagination from './Pagination'
 
 import { getSession } from '../stores/actions/userAction';
-import { getTransaction, addTransaction, deleteTransaction, getStock } from '../stores/actions/transactionAction';
+import { addTransaction, deleteTransaction, getTicker } from '../stores/actions/transactionAction';
 
 const styles = useStyles({
     fluidInput: {
@@ -26,11 +26,11 @@ const Transaction = (props) => {
 
     const [transaction, setTransaction] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(props.dataLoaded);
+    const [portfolio, setPortfolio] = useState(props.portfolio);
 
-    const [stock, setStock] = useState([])
+    const [ticker, setTicker] = useState([])
     const [displayDropDown, setDisplayDropDown] = useState([])
 
-    const [portfolio, setPortfolio] = useState('');
     const [error, setError] = useState("")
 
     const [transname, setTransName] = useState('')
@@ -135,7 +135,7 @@ const Transaction = (props) => {
 
     const onTickerChange = (e, data) => {
         setTransTicker(data.value)
-        // setStock([])
+        // setTicker([])
     }
 
     const onDirectionChange = (e, data) => {
@@ -171,12 +171,11 @@ const Transaction = (props) => {
         else {
             alert(res.data);
         }
-
     }
 
     const onModalClose = () => {
         setModalOpen(false)
-        setStock([])
+        setTicker([])
     }
 
     useEffect(() => {
@@ -184,21 +183,21 @@ const Transaction = (props) => {
             console.log(transname)
             if (transname === '') {
                 console.log('aaaaaaaaaaaaaa')
-                setStock([])
+                setTicker([])
             }
             else {
                 console.log('bbbbbbbbbbbb')
                 const accessToken = getSession()
-                const result = await getStock(transname, accessToken)
+                const result = await getTicker(transname, accessToken)
                 if (result.status) {
                     console.log(result.data)
                     console.log(transname)
                     console.log(typeof transname === typeof '')
                     if (transname === '') {
-                        setStock([])
+                        setTicker([])
                     }
                     else {
-                        setStock(result.data)
+                        setTicker(result.data)
                     }
                 }
                 else {
@@ -210,19 +209,19 @@ const Transaction = (props) => {
     }, [transname])
 
     useEffect(() => {
-        if (stock.length === 0) {
+        if (ticker.length === 0) {
             setDisplayDropDown([])
         }
         else {
-            const stateOptions = _.map(stock, (sto, index) => ({
+            const stateOptions = _.map(ticker, (tic, index) => ({
                 key: index,
-                text: `${sto.Name} (${sto.Code}, ${sto.Currency})`,
-                value: `${sto.Name}:${sto.Code}:${sto.Currency}`,
+                text: `${tic.Name}-${tic.Exchange} (${tic.Code}, ${tic.Currency})`,
+                value: `${tic.Name}:${tic.Exchange}:${tic.Code}:${tic.Currency}`,
             }))
 
             setDisplayDropDown(stateOptions)
         }
-    }, [stock])
+    }, [ticker])
 
     useEffect(() => {
         prepareCurrentData(transaction)
@@ -232,31 +231,9 @@ const Transaction = (props) => {
         prepareCurrentData(transaction)
     }, [transaction])
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         if (!fetch) {
-    //             setPortfolio(props.portfolio);
-    //             const accessToken = getSession()
-    //             const res = await getTransaction(accessToken, props.portfolio);
-    //             setFetch(1);
-    //             if (res.status) {
-    //                 let data = res.data;
-    //                 data.map((d, idx) => {
-    //                     d.no = idx;
-    //                 })
-    //                 setTransaction(data);
-    //             }
-    //             else {
-    //                 history.push("/signin");
-    //             }
-    //         }
-    //     }
-    //     fetchData()
-    // });
-
     useEffect(() => {
         setDataLoaded(props.dataLoaded)
-        let data = props.transactions.data;
+        let data = props.transactions;
         if (data) {
             data.map((d, idx) => {
                 d.no = idx;
@@ -264,6 +241,10 @@ const Transaction = (props) => {
             setTransaction(data);
         }
     }, [props.dataLoaded]);
+
+    useEffect(() => {
+        setPortfolio(props.portfolio)
+    }, [props.portfolio]);
 
     return (
         <>
