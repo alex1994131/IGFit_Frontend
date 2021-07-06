@@ -429,8 +429,6 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
-        console.log(tx);
-
         tx = this.parseManualtx(tx);
 
         this.start_date = new Date(tx[0].Date);
@@ -444,8 +442,6 @@ export const IGAccount = class IGAccount {
 
         this.load_currency.push(this.findticker("GBPUSD", "USD"));
         this.load_currency.push(this.findticker("GBPEUR", "EUR"));
-
-        console.log('Total-------------', prices)
 
         this.transactions = tx;
         
@@ -666,8 +662,6 @@ export const IGAccount = class IGAccount {
             ticker = tx?.Ticker;
             exchange = tx?.Exchange;
 
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!', exchange)
-
             tickers[name] = ticker;
             await this.getprices(name, ticker, exchange, this.start_date, this.end_date)
             return ticker;
@@ -747,9 +741,13 @@ export const IGAccount = class IGAccount {
                 price = await getPrice(accessToken, parameter);
                 if(price.status) {
                     price = price.data
-                    price.forEach((element)=>element.date=new Date(element.date));
+                    price.forEach((element)=>{
+                        element.date=new Date(element.date)
+                        element.adjClose = element.adjusted_close
+                        element.symbol = ticker   
+                    });
                     prices[name] = price;
-                    console.log(price)  
+                    console.log('************************', price)  
                 }
             } catch (err) {
                 prices[name] = prices_offline[name];
