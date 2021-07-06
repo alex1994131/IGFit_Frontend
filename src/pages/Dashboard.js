@@ -30,7 +30,7 @@ import TableIG31 from "../components/table/TableIG3_1.tsx"
 import { getSession } from '../stores/actions/userAction';
 import { getPrice } from '../stores/actions/priceAction';
 
-const offlineMode = 1;
+const offlineMode = 0;
 const newApi = 1;
 
 const Dashboard = (props) => {
@@ -88,7 +88,6 @@ const Dashboard = (props) => {
                     IG.getTransactions(current_portfolio.id).then((transactions) => {
                         if (transactions.status) {
                             setTransaction(transactions.data)
-                            setDataLoaded(1)
                             var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded);
                             setAcc(igAccount);
                         }
@@ -150,15 +149,15 @@ const Dashboard = (props) => {
                 key: 'Tab 18'
             }
         },
-        {
-            menuItem: 'Spending',
-            pane: {
-                content: (<TablePx2 data={datatx} searchQuery="acc:amount:-m:12 acc:category.title:-m:12 category.title!=transfer category.title!=sal category.title!=inc category.title!=“credit card” category.title!=taxes" />),
-                style: { marginTop: 0, marginBottom: 0 },
-                attached: false,
-                key: 'Tab 8'
-            }
-        },
+        // {
+        //     menuItem: 'Spending',
+        //     pane: {
+        //         content: (<TablePx2 data={datatx} searchQuery="acc:amount:-m:12 acc:category.title:-m:12 category.title!=transfer category.title!=sal category.title!=inc category.title!=“credit card” category.title!=taxes" />),
+        //         style: { marginTop: 0, marginBottom: 0 },
+        //         attached: false,
+        //         key: 'Tab 8'
+        //     }
+        // },
         {
             menuItem: 'Overview',
             pane: {
@@ -249,42 +248,42 @@ const Dashboard = (props) => {
                 key: 'Tab 3'
             }
         },
-        {
-            menuItem: 'TX Summary',
-            pane: {
-                content: (<TablePxAcc Px={Px} />),
-                style: { marginTop: 0, marginBottom: 0 },
-                attached: false,
-                key: 'Tab 11'
-            }
-        },
-        {
-            menuItem: 'TX Category',
-            pane: {
-                content: (<TablePx1 data={datatx} searchQuery="acc:amount:-m:12 acc:category.title:-m:12 category.title!=transfer category.title!=sal category.title!=inc category.title!=“credit card” category.title!=taxes" />),
-                style: { marginTop: 0, marginBottom: 0 },
-                attached: false,
-                key: 'Tab 7'
-            }
-        },
-        {
-            menuItem: 'TX Search',
-            pane: {
-                content: (<Table4 data={datatx} />),
-                style: { marginTop: 0, marginBottom: 0 },
-                attached: false,
-                key: 'Tab 6'
-            }
-        },
-        {
-            menuItem: 'TX List',
-            pane: {
-                content: (<TablePx4 data={datatx} />),
-                style: { marginTop: 0, marginBottom: 0 },
-                attached: false,
-                key: 'Tab 12'
-            }
-        }
+        // {
+        //     menuItem: 'TX Summary',
+        //     pane: {
+        //         content: (<TablePxAcc Px={Px} />),
+        //         style: { marginTop: 0, marginBottom: 0 },
+        //         attached: false,
+        //         key: 'Tab 11'
+        //     }
+        // },
+        // {
+        //     menuItem: 'TX Category',
+        //     pane: {
+        //         content: (<TablePx1 data={datatx} searchQuery="acc:amount:-m:12 acc:category.title:-m:12 category.title!=transfer category.title!=sal category.title!=inc category.title!=“credit card” category.title!=taxes" />),
+        //         style: { marginTop: 0, marginBottom: 0 },
+        //         attached: false,
+        //         key: 'Tab 7'
+        //     }
+        // },
+        // {
+        //     menuItem: 'TX Search',
+        //     pane: {
+        //         content: (<Table4 data={datatx} />),
+        //         style: { marginTop: 0, marginBottom: 0 },
+        //         attached: false,
+        //         key: 'Tab 6'
+        //     }
+        // },
+        // {
+        //     menuItem: 'TX List',
+        //     pane: {
+        //         content: (<TablePx4 data={datatx} />),
+        //         style: { marginTop: 0, marginBottom: 0 },
+        //         attached: false,
+        //         key: 'Tab 12'
+        //     }
+        // }
     ]
 
     let dropdownOptions = [];
