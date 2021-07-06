@@ -1,7 +1,7 @@
 
 import * as actionTypes from './actionTypes'
 import axios from 'axios';
-import { axios_config, eodhistorical_api } from '../configs';
+import { axios_config } from '../configs';
 
 export const getTransaction = async (token, portfolio) => {
     axios_config.headers.Authorization = 'Bearer ' + token;
@@ -27,5 +27,11 @@ export const deleteTransaction = async (transaction, portfolio, token) => {
 export const getTicker = async (search_string, token) => {
     axios_config.headers.Authorization = 'Bearer ' + token;
     const res = await axios.create(axios_config).post(`/get_ticker`, { search_string, search_string })
+    return res.data
+}
+
+export const getPrice = async (token, data) => {
+    axios_config.headers.Authorization = 'Bearer ' + token;
+    const res = await axios.create(axios_config).post(`/get_price`, data)
     return res.data
 }

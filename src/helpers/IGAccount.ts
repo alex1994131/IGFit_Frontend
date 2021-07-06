@@ -3,6 +3,9 @@
 import {tickers_offline, prices_offline} from '../data/pricesoffline.js'
 //import fetch from "node-fetch"
 
+import { getPrice } from '../stores/actions/transactionAction';
+import { getSession } from '../stores/actions/userAction';
+
 export var tickers = {};
 export var prices = {};
 export var tickers_dates = {};
@@ -12,6 +15,8 @@ interface Transaction {
     Date : Date,
     Currency : string,
     Market : string,
+    Ticker : string,
+    Exchange: string,
     Direction : string,
     Quantity : string,
     Consideration: string,
@@ -267,6 +272,8 @@ export const IGAccount = class IGAccount {
                     Date: date,
                     Currency: currency,
                     Market: transaction.MarketName,
+                    Ticker: '',
+                    Exchange: '',
                     Direction: Number(transaction.Size) > 0 ? "BUY" : "SELL",
                     Quantity: transaction.Size,
                     Consideration: (-Number(transaction.Size) * Number(transaction.Level) * contractSize).toString(),
@@ -302,6 +309,8 @@ export const IGAccount = class IGAccount {
                 Date: date,
                 Currency: transaction.currency,
                 Market: transaction.name,
+                Ticker: transaction.ticker,
+                Exchange: transaction.exchange,
                 Direction: transaction.direction,
                 Quantity: transaction.quantity,
                 Consideration: (-Number(transaction.quantity) * Number(transaction.price) * contractSize).toString(),
@@ -329,15 +338,7 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
-        console.log('********************************')
-        console.log(tx)
-        console.log('********************************')
-
         tx = this.parseCFDtx(tx);
-
-        console.log('--------------------------------')
-        console.log(tx)
-        console.log('--------------------------------')
 
         this.start_date = new Date(tx[0].Date);
         if (!this.offlineMode) {
@@ -384,10 +385,6 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
-        console.log('--------------------------------')
-        console.log(tx)
-        console.log('--------------------------------')
-
         this.start_date = new Date(tx[0].Date);
         if (!this.offlineMode) {
             this.end_date = new Date();
@@ -432,11 +429,9 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
-        tx = this.parseManualtx(tx);
+        console.log(tx);
 
-        console.log('--------------------------------')
-        console.log(tx)
-        console.log('--------------------------------')
+        tx = this.parseManualtx(tx);
 
         this.start_date = new Date(tx[0].Date);
         this.end_date = new Date();
@@ -444,12 +439,20 @@ export const IGAccount = class IGAccount {
 
         for (var i = 0; i < tx.length; i++) {
             var date = new Date(tx[i].Date);
-            this.addTransaction(tx[i].Market, date, tx[i]);
+            this.addTransactionManual(tx[i].Market, date, tx[i]);
         }
+
         this.load_currency.push(this.findticker("GBPUSD", "USD"));
         this.load_currency.push(this.findticker("GBPEUR", "EUR"));
+
+        console.log('Total-------------', prices)
+
         this.transactions = tx;
-        this.data = this.positionsBetweenDate().then((resp)=>{this.data=resp;this.setDataLoaded(1);return resp;});
+        
+        this.data = this.positionsBetweenDate().then((resp)=>{
+            this.data=resp;this.setDataLoaded(1);
+            return resp;
+        });
     }
 
     getData() {
@@ -463,7 +466,15 @@ export const IGAccount = class IGAccount {
         }
         data.Date = date;
         this.positions[market].tx.push(data);
+    }
 
+    addTransactionManual(market : string, date : Date, data : Transaction) {
+        if (!(market in this.positions)) {
+            this.positions[market] = { tx: [] };
+            this.load_prices.push(this.findticker(market, data.Currency, data).then(ticker => this.positions[market].ticker = ticker));
+        }
+        data.Date = date;
+        this.positions[market].tx.push(data);
     }
 
     addTransaction2(positions : Positions_On_Date, data : Transaction) {
@@ -645,72 +656,144 @@ export const IGAccount = class IGAccount {
 
     async findticker(name : string, fx : string, tx? : Transaction) : Promise<string> {
         var ticker;
+        var exchange = '';
         if (!this.offlineMode) {
-            if (name in tickers && tickers_dates[name].getTime() <= new Date(this.start_date).getTime()) return tickers[name];
-            //tickers[name] = "[PROCESSING]";
-            var header = { headers: { "accept": "*/*", 'Authorization': 'Basic ' + btoa('admin:secure_password'), } };
-            //const resp = await fetch("https://faasd.tyap.cloud/function/igapi?name=" + name + "&fx=" + fx, header);
-            //ar ticker;
+            if (name in tickers && tickers_dates[name].getTime() <= new Date(this.start_date).getTime())  {
+                return tickers[name];
+            }    
             tickers_dates[name] = this.start_date;
-            tickers[name] = fetch("https://faasd.tyap.cloud/function/igapi?name=" + name + "&fx=" + fx + (tx?.Epic?"&epic="+tx.Epic:""), header).then(resp => resp.text()).then(resp => {
-                ticker = resp;
-                var resp2;
-                // var resp = ticker;
-                //if (ticker != "[TICKER]")
-                if(ticker[0]!='[')
-                    resp2 = this.getprices(name, ticker, this.start_date, this.end_date).then(()=>{return ticker}).catch(()=>{console.log("didn't fetched prices");return ticker;});
 
-                tickers[name] = ticker;
-                return resp2;
-                
-                // return resp;
-            }).catch(()=>{console.log("didn't fetched");ticker = tickers_offline[name];return ticker;});
-            await tickers[name];
+            ticker = tx?.Ticker;
+            exchange = tx?.Exchange;
+
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!', exchange)
+
             tickers[name] = ticker;
+            await this.getprices(name, ticker, exchange, this.start_date, this.end_date)
             return ticker;
         } else {
             ticker = tickers[name];
             var resp = ticker;
-            //if (ticker != "[TICKER]")
             if(ticker && ticker[0]!='[')
-                resp = this.getprices(name, ticker, this.start_date, this.end_date).then(()=>{return ticker});
+                resp = this.getprices(name, ticker, exchange, this.start_date, this.end_date).then(()=>{return ticker});
             return resp;
         }
-        // var resp = ticker;
-        // //if (ticker != "[TICKER]")
-        // if(ticker[0]!='[')
-        //     resp = this.getprices(name, ticker, this.start_date, this.end_date).then(()=>{return ticker});
-        // return resp;
     }
 
-    async getprices(name, ticker, from, to) {
+    // async findticker(name : string, fx : string, tx? : Transaction) : Promise<string> {
+    //     var ticker;
+    //     if (!this.offlineMode) {
+    //         if (name in tickers && tickers_dates[name].getTime() <= new Date(this.start_date).getTime()) return tickers[name];
+    //         //tickers[name] = "[PROCESSING]";
+    //         var header = { headers: { "accept": "*/*", 'Authorization': 'Basic ' + btoa('admin:secure_password'), } };
+    //         //const resp = await fetch("https://faasd.tyap.cloud/function/igapi?name=" + name + "&fx=" + fx, header);
+    //         //ar ticker;
+    //         tickers_dates[name] = this.start_date;
+    //         tickers[name] = fetch("https://faasd.tyap.cloud/function/igapi?name=" + name + "&fx=" + fx + (tx?.Epic?"&epic="+tx.Epic:""), header).then(resp => resp.text()).then(resp => {
+    //             ticker = resp;
+    //             var resp2;
+    //             // var resp = ticker;
+    //             //if (ticker != "[TICKER]")
+    //             if(ticker[0]!='[')
+    //                 resp2 = this.getprices(name, ticker, this.start_date, this.end_date)
+    //                 .then(()=>{
+    //                     return ticker
+    //                 })
+    //                 .catch(()=>{
+    //                     console.log("didn't fetched prices");
+    //                     return ticker;
+    //                 });
+
+    //             tickers[name] = ticker;
+    //             return resp2;
+                
+    //             // return resp;
+    //         }).catch(()=>{console.log("didn't fetched");ticker = tickers_offline[name];return ticker;});
+    //         await tickers[name];
+    //         tickers[name] = ticker;
+    //         return ticker;
+    //     } else {
+    //         ticker = tickers[name];
+    //         console.log('*******************', ticker)
+    //         var resp = ticker;
+    //         //if (ticker != "[TICKER]")
+    //         if(ticker && ticker[0]!='[')
+    //             resp = this.getprices(name, ticker, this.start_date, this.end_date).then(()=>{return ticker});
+    //         return resp;
+    //     }
+    //     // var resp = ticker;
+    //     // //if (ticker != "[TICKER]")
+    //     // if(ticker[0]!='[')
+    //     //     resp = this.getprices(name, ticker, this.start_date, this.end_date).then(()=>{return ticker});
+    //     // return resp;
+    // }
+
+    async getprices(name, ticker, exchange, from, to) {
         var price;
         if (!this.offlineMode) {
             from = from.toLocaleDateString("en-CA");
             to = to.toLocaleDateString("en-CA");
-            // if (name in prices) return prices[name];
+            
             prices[name] = [];
-            var header = { headers: { "accept": "*/*", 'Authorization': 'Basic ' + btoa('admin:secure_password'), } };
             try {
-                const resp = await fetch("https://faasd.tyap.cloud/function/igapi2?ticker=" + ticker + "&from=" + from + "&to=" + to, header);
-                price = await resp.json();
-                price.forEach((element)=>element.date=new Date(element.date));
-                prices[name] = price;
+                const parameter = {
+                    ticker: ticker,
+                    exchange: exchange,
+                    from: from,
+                    to: to
+                }
+
+                const accessToken = getSession()
+                price = await getPrice(accessToken, parameter);
+                if(price.status) {
+                    price = price.data
+                    price.forEach((element)=>element.date=new Date(element.date));
+                    prices[name] = price;
+                    console.log(price)  
+                }
             } catch (err) {
                 prices[name] = prices_offline[name];
                 prices[name].forEach((element)=>element.date=new Date(element.date));
             }
+
         } else {
             if(this.getallprices()) return price;
             prices[name].forEach((element)=>element.date=new Date(element.date));
             price = prices[name];
         }
         done++;
-        //if (this.getallprices()) {
-        //    this.calcPosition(this.poscalc);
-        //}
+        
         return price;
     }
+
+    // async getprices(name, ticker, from, to) {
+    //     var price;
+    //     if (!this.offlineMode) {
+    //         from = from.toLocaleDateString("en-CA");
+    //         to = to.toLocaleDateString("en-CA");
+    //         // if (name in prices) return prices[name];
+    //         prices[name] = [];
+    //         var header = { headers: { "accept": "*/*", 'Authorization': 'Basic ' + btoa('admin:secure_password'), } };
+    //         try {
+    //             const resp = await fetch("https://faasd.tyap.cloud/function/igapi2?ticker=" + ticker + "&from=" + from + "&to=" + to, header);
+    //             price = await resp.json();
+    //             price.forEach((element)=>element.date=new Date(element.date));
+    //             prices[name] = price;
+    //         } catch (err) {
+    //             prices[name] = prices_offline[name];
+    //             prices[name].forEach((element)=>element.date=new Date(element.date));
+    //         }
+    //     } else {
+    //         if(this.getallprices()) return price;
+    //         prices[name].forEach((element)=>element.date=new Date(element.date));
+    //         price = prices[name];
+    //     }
+    //     done++;
+    //     //if (this.getallprices()) {
+    //     //    this.calcPosition(this.poscalc);
+    //     //}
+    //     return price;
+    // }
 
     getallprices() {
         if (done == Object.keys(prices).length && done > 0) {
