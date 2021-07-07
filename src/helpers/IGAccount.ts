@@ -446,7 +446,8 @@ export const IGAccount = class IGAccount {
         this.transactions = tx;
         
         this.data = this.positionsBetweenDate().then((resp)=>{
-            this.data=resp;this.setDataLoaded(1);
+            this.data=resp;
+            this.setDataLoaded(1);
             return resp;
         });
     }
@@ -742,12 +743,19 @@ export const IGAccount = class IGAccount {
                 if(price.status) {
                     price = price.data
                     price.forEach((element)=>{
-                        element.date=new Date(element.date)
-                        element.adjClose = element.adjusted_close
-                        element.symbol = ticker   
+                        var new_date = new Date(element.date)
+                        element.date=new_date
+
+                        element.symbol = ticker
+                        element.adjClose = Number(element.adjusted_close)
+                        element.open = Number(element.open)
+                        element.close = Number(element.close)
+                        element.high = Number(element.high)
+                        element.low = Number(element.low)
+                        element.volume = Number(element.volume)
                     });
                     prices[name] = price;
-                    console.log('************************', price)  
+                    console.log(price)
                 }
             } catch (err) {
                 prices[name] = prices_offline[name];
@@ -758,6 +766,7 @@ export const IGAccount = class IGAccount {
             if(this.getallprices()) return price;
             prices[name].forEach((element)=>element.date=new Date(element.date));
             price = prices[name];
+            console.log(price)
         }
         done++;
         
