@@ -13,6 +13,7 @@ import * as Pocketsmith from "../helpers/Pocketsmith.js"
 import "../helpers/utils.js"
 
 import Transaction from '../components/Transaction';
+import Setting from '../components/Setting';
 import Table3 from "../components/table/Table3";
 import Table4 from "../components/table/Table4";
 import TableIG from "../components/table/TableIG";
@@ -284,6 +285,15 @@ const Dashboard = (props) => {
         //         key: 'Tab 12'
         //     }
         // }
+        {
+            menuItem: 'Settings',
+            pane: {
+                content: (<Setting />),
+                style: { marginTop: 0, marginBottom: 0 },
+                attached: false,
+                key: 'Settings'
+            }
+        },
     ]
 
     let dropdownOptions = [];

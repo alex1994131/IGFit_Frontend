@@ -35,3 +35,9 @@ export const getPrice = async (token, data) => {
     const res = await axios.create(axios_config).post(`/get_price`, data)
     return res.data
 }
+
+export const getCurrency = async (token, data) => {
+    axios_config.headers.Authorization = 'Bearer ' + token;
+    const res = await axios.create(axios_config).post(`/get_currency`, data)
+    return res.data
+}

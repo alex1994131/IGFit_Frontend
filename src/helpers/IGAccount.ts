@@ -3,7 +3,7 @@
 import {tickers_offline, prices_offline} from '../data/pricesoffline.js'
 //import fetch from "node-fetch"
 
-import { getPrice } from '../stores/actions/transactionAction';
+import { getPrice, getCurrency } from '../stores/actions/transactionAction';
 import { getSession } from '../stores/actions/userAction';
 
 export var tickers = {};
@@ -440,8 +440,8 @@ export const IGAccount = class IGAccount {
             this.addTransactionManual(tx[i].Market, date, tx[i]);
         }
 
-        this.load_currency.push(this.findticker("GBPUSD", "USD"));
-        this.load_currency.push(this.findticker("GBPEUR", "EUR"));
+        this.load_currency.push(this.findCurrency("GBP", "USD"));
+        this.load_currency.push(this.findCurrency("GBP", "EUR"));
 
         this.transactions = tx;
         
@@ -649,6 +649,79 @@ export const IGAccount = class IGAccount {
         Promise.all(this.load_prices).then(()=>this.calcPosition(this.poscalc));
 
         return positions;
+    }
+
+    async findCurrency(current : string, base : string) : Promise<string> {
+        var ticker;
+        var name = `${current}${base}`
+        if (!this.offlineMode) {
+            if (name in tickers && tickers_dates[name].getTime() <= new Date(this.start_date).getTime())  {
+                return tickers[name];
+            }    
+            tickers_dates[name] = this.start_date;
+
+            ticker = `${name}=X`;
+        
+            tickers[name] = ticker;
+            await this.getCurrency(name, current, base, ticker, this.start_date, this.end_date)
+            return ticker;
+        } else {
+            ticker = tickers[name];
+            var resp = ticker;
+            if(ticker && ticker[0]!='[')
+                resp = this.getCurrency(name, current, base, ticker, this.start_date, this.end_date).then(()=>{return ticker});
+            return resp;
+        }
+    }
+
+    async getCurrency(name, current, base, ticker, from, to) {
+        var price;
+        if (!this.offlineMode) {
+            from = from.toLocaleDateString("en-CA");
+            to = to.toLocaleDateString("en-CA");
+            
+            prices[name] = [];
+            try {
+                const parameter = {
+                    current_currency: current,
+                    base_currency: base,
+                    from: from,
+                    to: to
+                }
+
+                const accessToken = getSession()
+                price = await getCurrency(accessToken, parameter);
+                if(price.status) {
+                    price = price.data
+                    price.forEach((element)=>{
+                        var new_date = new Date(element.date)
+                        element.date=new_date
+
+                        element.symbol = ticker
+                        element.adjClose = Number(element.adjusted_close)
+                        element.open = Number(element.open)
+                        element.close = Number(element.close)
+                        element.high = Number(element.high)
+                        element.low = Number(element.low)
+                        element.volume = Number(element.volume)
+                    });
+                    prices[name] = price;
+                    console.log(price)
+                }
+            } catch (err) {
+                prices[name] = prices_offline[name];
+                prices[name].forEach((element)=>element.date=new Date(element.date));
+            }
+
+        } else {
+            if(this.getallprices()) return price;
+            prices[name].forEach((element)=>element.date=new Date(element.date));
+            price = prices[name];
+            console.log(price)
+        }
+        done++;
+        
+        return price;
     }
 
     async findticker(name : string, fx : string, tx? : Transaction) : Promise<string> {
