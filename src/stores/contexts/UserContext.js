@@ -46,7 +46,7 @@ const UserProvider = ({ children }) => {
 
     useEffect(() => {
         load()
-    }, [])
+    })
 
     return (
         <UserContext.Provider value={userDetails}>
