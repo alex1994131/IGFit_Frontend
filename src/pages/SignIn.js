@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
 import { Link } from "react-router-dom"
 
-import { UserContext } from "../stores/contexts/UserContext";
+
 import { setSignIn, signinAction } from '../stores/actions/userAction';
 
 const SignInForm = (props) => {
@@ -12,7 +12,7 @@ const SignInForm = (props) => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const dispatch = useDispatch()
-    // console.log(useContext(UserContext));
+
 
     const onSignIn = async (e) => {
         e.preventDefault();

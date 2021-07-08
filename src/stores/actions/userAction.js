@@ -12,13 +12,13 @@ export const getSession = () => {
 }
 
 export const getUserAuth = async (token) => {
-    const res = await axios.post(`/get_user`, JSON.stringify(token), axios_config)
+    axios_config.headers.Authorization = 'Bearer ' + token;
+    const res = await axios.create(axios_config).post(`/get_user`)
     return res.data
 }
 
 export const signinAction = async (auth_info) => {
     const res = await axios.post(`/signin`, JSON.stringify(auth_info), axios_config)
-    console.log(res);
     return res.data
 }
 
@@ -29,6 +29,12 @@ export const signupAction = async (user_info) => {
 
 export const signoutAction = async (token) => {
     const res = await axios.post(`/signout`, JSON.stringify(token), axios_config)
+    return res.data
+}
+
+export const updateBaseCurrency = async (token, data) => {
+    axios_config.headers.Authorization = 'Bearer ' + token;
+    const res = await axios.create(axios_config).post(`/update_basecurrency`, { portfolio: portfolio })
     return res.data
 }
 

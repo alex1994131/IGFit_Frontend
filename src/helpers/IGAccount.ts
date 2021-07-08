@@ -290,10 +290,10 @@ export const IGAccount = class IGAccount {
         return tx;
     }
 
-    parseManualtx(manual_tx: TransactionManual[]): Transaction[] {
+    async parseManualtx(manual_tx: TransactionManual[]): Promise<Transaction[]> {
         var tx: Transaction[] = [];
 
-        this.load_currency = [];
+        const local_currency = []
 
         for (var transaction of manual_tx) {
             var date = new Date(transaction.date);
@@ -309,12 +309,23 @@ export const IGAccount = class IGAccount {
             //         contractSize = Number(match2[0][1]);
             //     }
             // }
-            if(!prices[`${base_currency}${transaction.currency}`]) {
-                this.load_currency.push(this.findCurrency(base_currency, transaction.currency));
-            }
-
-            var fx = this.getCurrencyRate(base_currency, transaction.currency, date)
             
+            if(!prices[`${base_currency}${transaction.currency}`]) {
+                // await local_currency.push(this.findCurrency(base_currency, transaction.currency))
+                await this.findCurrency(base_currency, transaction.currency)
+            }
+            
+            var fx = this.getCurrencyRate(base_currency, transaction.currency, date)
+            console.log('-----------FX2')
+            console.log(`${base_currency}-${transaction.currency} : ${fx}`)
+
+            let transaction_price = Number(transaction.price);
+            if(transaction.currency === 'GBP') {
+                transaction_price = (transaction_price/100)
+            }
+            
+            console.log(`${transaction.currency} : ${transaction_price}`)
+
             var tx2: Transaction = {
                 Date: date,
                 Currency: transaction.currency,
@@ -328,12 +339,14 @@ export const IGAccount = class IGAccount {
                 Charges: "0",
                 ContractSize: contractSize.toString(),
                 Epic: "",
-                Price: transaction.price,
+                Price: transaction_price.toString(),
                 "Cost/Proceeds": ( (-Number(transaction.quantity) * Number(transaction.price) * contractSize) / fx ).toString()
             }
+
             tx.push(tx2);
         }
-        return tx;
+        // return Promise.all(local_currency).then(() => {return(tx)});
+        return tx
     }
 
     loadCFD(csvData) {
@@ -430,6 +443,8 @@ export const IGAccount = class IGAccount {
         this.positions = {};
         this.transactions = [];
         this.load_prices = [];
+        this.load_currency = [];
+
         
         var tx = csvData;
 
@@ -443,20 +458,21 @@ export const IGAccount = class IGAccount {
         this.end_date = new Date();
         this.end_date.setHours(0, 0, 0, 0);
 
-        tx = this.parseManualtx(tx);
-        
-        for (var i = 0; i < tx.length; i++) {
-            var date = new Date(tx[i].Date);
-            this.addTransactionManual(tx[i].Market, date, tx[i]);
-        }
-
-        this.transactions = tx;
-        
-        this.data = this.positionsBetweenDate().then((resp)=>{
-            this.data=resp;
-            this.setDataLoaded(1);
-            return resp;
-        });
+        this.load_currency.push(this.parseManualtx(tx).then((res) => {
+            tx = res
+            for (var i = 0; i < tx.length; i++) {
+                var date = new Date(tx[i].Date);
+                this.addTransactionManual(tx[i].Market, date, tx[i]);
+            }
+    
+            this.transactions = tx;
+            
+            this.data = this.positionsBetweenDate().then((resp)=>{
+                this.data=resp;
+                this.setDataLoaded(1);
+                return resp;
+            });
+        }))
     }
 
     getData() {
@@ -712,7 +728,6 @@ export const IGAccount = class IGAccount {
                         element.volume = Number(element.volume)
                     });
                     prices[name] = price;
-                    console.log(price)
                 }
             } catch (err) {
                 prices[name] = prices_offline[name];
@@ -723,7 +738,6 @@ export const IGAccount = class IGAccount {
             if(this.getallprices()) return price;
             prices[name].forEach((element)=>element.date=new Date(element.date));
             price = prices[name];
-            console.log(price)
         }
         done++;
         
@@ -731,7 +745,7 @@ export const IGAccount = class IGAccount {
     }
 
     getCurrencyRate(base, current, date) {
-        let rate = 1;
+        let rate;
 
         const name = `${base}${current}`
         let eod_currency_data = prices[name]

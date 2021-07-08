@@ -33,10 +33,10 @@ const UserProvider = ({ children }) => {
                 history.push("/")
             }
 
-            // let res = await getUserAuth({ token: accessToken })
-            // if (res.status) {
-            //     setUserDetails(res.user)
-            // }
+            let res = await getUserAuth(accessToken)
+            if (res.status) {
+                setUserDetails(res.user)
+            }
         } else {
             if (history.location.pathname !== "/signin" || history.location.pathname !== "/singup") {
                 history.push("/signin")
