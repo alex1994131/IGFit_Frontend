@@ -775,8 +775,10 @@ export const IGAccount = class IGAccount {
             ticker = tx?.Ticker;
             exchange = tx?.Exchange;
 
-            tickers[name] = ticker;
-            await this.getprices(name, ticker, exchange, this.start_date, this.end_date)
+            if(ticker[0]!='[') {
+                tickers[name] = ticker;
+                await this.getprices(name, ticker, exchange, this.start_date, this.end_date)
+            }
             return ticker;
         } else {
             ticker = tickers[name];
