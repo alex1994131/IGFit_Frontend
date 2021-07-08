@@ -9,7 +9,7 @@ import { getSession } from '../stores/actions/userAction';
 export var tickers = {};
 export var prices = {};
 export var tickers_dates = {};
-export var base_currency = 'GBP'
+
 var done = 0;
 
 interface Transaction {
@@ -187,6 +187,7 @@ interface PriceData {
 export const IGAccount = class IGAccount {
     csvData : Array<Object>
     type : string
+    base_currency: string
     setDataLoaded : (a: any) => any
     offlineMode : number
     positions : Positions
@@ -202,7 +203,7 @@ export const IGAccount = class IGAccount {
     chartdata2 : any
     calc : any
     
-    constructor(csvData, type, offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded) {
+    constructor(csvData, type, offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded, base_currency) {
         this.csvData = csvData;
         this.type = type;
         // this.setData = setData;
@@ -211,6 +212,7 @@ export const IGAccount = class IGAccount {
         // this.setChart2 = setChart2;
         // this.setPositions = setPositions;
         this.setDataLoaded = setDataLoaded;
+        this.base_currency = base_currency
         this.offlineMode = offlineMode;
         if (!offlineMode) {
             // tickers = {};
@@ -310,21 +312,18 @@ export const IGAccount = class IGAccount {
             //     }
             // }
             
-            if(!prices[`${base_currency}${transaction.currency}`]) {
+            if(!prices[`${this.base_currency}${transaction.currency}`]) {
                 // await local_currency.push(this.findCurrency(base_currency, transaction.currency))
-                await this.findCurrency(base_currency, transaction.currency)
+                await this.findCurrency(this.base_currency, transaction.currency)
             }
             
-            var fx = this.getCurrencyRate(base_currency, transaction.currency, date)
-            console.log('-----------FX2')
-            console.log(`${base_currency}-${transaction.currency} : ${fx}`)
+            var fx = this.getCurrencyRate(this.base_currency, transaction.currency, date)
+            console.log(`${this.base_currency}-${transaction.currency} : ${fx}`)
 
-            let transaction_price = Number(transaction.price);
-            if(transaction.currency === 'GBP') {
-                transaction_price = (transaction_price/100)
-            }
             
-            console.log(`${transaction.currency} : ${transaction_price}`)
+            if(transaction.currency === 'GBP') {
+                transaction.price = (Number(transaction.price)/100).toString()
+            }
 
             var tx2: Transaction = {
                 Date: date,
@@ -339,7 +338,7 @@ export const IGAccount = class IGAccount {
                 Charges: "0",
                 ContractSize: contractSize.toString(),
                 Epic: "",
-                Price: transaction_price.toString(),
+                Price: Number(transaction.price).toString(),
                 "Cost/Proceeds": ( (-Number(transaction.quantity) * Number(transaction.price) * contractSize) / fx ).toString()
             }
 

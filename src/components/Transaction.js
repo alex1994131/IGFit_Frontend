@@ -180,13 +180,10 @@ const Transaction = (props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log(transname)
             if (transname === '') {
-                console.log('aaaaaaaaaaaaaa')
                 setTicker([])
             }
             else {
-                console.log('bbbbbbbbbbbb')
                 const accessToken = getSession()
                 const result = await getTicker(transname, accessToken)
                 if (result.status) {

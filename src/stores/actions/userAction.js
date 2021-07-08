@@ -32,9 +32,9 @@ export const signoutAction = async (token) => {
     return res.data
 }
 
-export const updateBaseCurrency = async (token, data) => {
+export const updateBaseCurrency = async (token, currency) => {
     axios_config.headers.Authorization = 'Bearer ' + token;
-    const res = await axios.create(axios_config).post(`/update_basecurrency`, { portfolio: portfolio })
+    const res = await axios.create(axios_config).post(`/update_basecurrency`, { currency: currency })
     return res.data
 }
 

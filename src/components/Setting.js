@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
 
-import { Container, Button, Icon, Table, Header, Modal, Input, Message, Dropdown, Dimmer, Loader, Image, Segment } from 'semantic-ui-react'
+import { Container, Button, Dropdown, Divider, Icon } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
 import { UserContext } from "../stores/contexts/UserContext";
@@ -22,7 +22,7 @@ const Setting = (props) => {
 
     const history = useHistory();
 
-    console.log(useContext(UserContext));
+    const current_user = useContext(UserContext);
 
     const base_currency = [
         {
@@ -62,23 +62,42 @@ const Setting = (props) => {
         }
     ]
 
-    // const [transaction, setTransaction] = useState([]);
+    const [defaultValue, setDefaultValue] = useState('');
+    const [currency, setCurrency] = useState('')
 
-    const onBaseCurrencyChange = (e, data) => {
-        const selected_currency = data.value
+    const onBaseCurrencyChange = async (e, data) => {
+        setCurrency(data.value)
+    }
 
-
+    const onSaveCurrency = async () => {
+        const accessToken = getSession()
+        const result = await updateBaseCurrency(accessToken, currency)
+        if (result.status) {
+            console.log(result.data)
+            current_user.updateUserDetails(result.data)
+            setDefaultValue(currency)
+        }
+        else {
+            alert(result.data)
+        }
     }
 
     useEffect(() => {
-
+        if (current_user.user.currency) {
+            console.log('-----------------------okokokoo')
+            setDefaultValue(current_user.user.currency)
+        }
     });
 
     return (
         <>
             <Container fluid>
-                <label>First Name</label>
-                <Dropdown placeholder='Direction' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} fluid selection options={base_currency} />
+                <label>Base Currency</label>
+                <Dropdown placeholder='Base Currency' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} defaultValue={defaultValue} fluid selection options={base_currency} />
+                <Divider />
+                <Button color='red' onClick={(e) => onSaveCurrency(e)}>
+                    <Icon name='save' /> Save
+                </Button>
             </Container>
         </>
 

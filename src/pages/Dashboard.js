@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 import querystring from "query-string"
 
 import { Container, Tab, Dropdown, Button, Checkbox } from 'semantic-ui-react'
+
+import { UserContext } from "../stores/contexts/UserContext";
 
 import 'semantic-ui-less/semantic.less'
 
@@ -38,6 +40,8 @@ const Dashboard = (props) => {
 
     const history = useHistory();
 
+    const current_user = useContext(UserContext);
+
     const [portfolio, setPortfolio] = useState({})
     const [transactions, setTransaction] = useState([]);
 
@@ -66,15 +70,17 @@ const Dashboard = (props) => {
                 const current_portfolio = querystring.parse(d)
                 setPortfolio(current_portfolio)
 
+                const base_currency = current_user.user.currency
+
                 if (newApi == 0) {
                     IG.downloadactivity(0, offlineMode).then((igdata) => {
                         var csvdata2 = igdata;
-                        var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded);
+                        var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded, base_currency);
                         // var acc2 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
 
                         if (!offlineMode) {
-                            var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
-                            var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd);
+                            var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd, base_currency);
+                            var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd, base_currency);
                         } else {
                             var acc3 = acc2;
                             var acc4 = acc2;
@@ -89,7 +95,7 @@ const Dashboard = (props) => {
                     IG.getTransactions(current_portfolio.id).then((transactions) => {
                         if (transactions.status) {
                             setTransaction(transactions.data)
-                            var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded);
+                            var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
                             setAcc(igAccount);
                         }
                         else {

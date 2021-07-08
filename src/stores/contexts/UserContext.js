@@ -4,15 +4,12 @@ import { getSession, getUserAuth } from '../actions/userAction'
 
 import { history } from '../../history'
 
-const UserContext = createContext({
-    user: null,
-    setUserDetails: userDetails => { }
-})
+const UserContext = createContext(null)
 
 const UserProvider = ({ children }) => {
 
-    const setUserDetails = ({ user }) => {
-        updateUserDetails(prevState => {
+    const updateUserDetails = ({ user }) => {
+        setUserDetails(prevState => {
             const newState = { ...prevState }
             return merge(newState, { user })
         })
@@ -20,10 +17,10 @@ const UserProvider = ({ children }) => {
 
     const userState = {
         user: null,
-        setUserDetails,
+        updateUserDetails,
     }
 
-    const [userDetails, updateUserDetails] = useState(userState)
+    const [userDetails, setUserDetails] = useState(userState)
 
     const load = async () => {
         const accessToken = getSession()
@@ -35,7 +32,11 @@ const UserProvider = ({ children }) => {
 
             let res = await getUserAuth(accessToken)
             if (res.status) {
-                setUserDetails(res.user)
+
+                setUserDetails({
+                    user: res.user,
+                    updateUserDetails
+                })
             }
         } else {
             if (history.location.pathname !== "/signin" || history.location.pathname !== "/singup") {
