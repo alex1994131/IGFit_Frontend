@@ -9,6 +9,7 @@ import { getSession } from '../stores/actions/userAction';
 export var tickers = {};
 export var prices = {};
 export var tickers_dates = {};
+export var base_currency = 'GBP'
 var done = 0;
 
 interface Transaction {
@@ -291,19 +292,28 @@ export const IGAccount = class IGAccount {
 
     parseManualtx(manual_tx: TransactionManual[]): Transaction[] {
         var tx: Transaction[] = [];
+
+        this.load_currency = [];
+
         for (var transaction of manual_tx) {
             var date = new Date(transaction.date);
             var contractSizeRegex = /\([^0-9]*([0-9]+)(.*)\)/g;
             var match = transaction.name.matchAll(contractSizeRegex);
             var match2 : any = Array.from(match);
             var contractSize = 1;
-            if (match2[0]?.length > 1) {
-                if (match2[0][2] == "oz") {
-                    contractSize = Number(match2[0][1])/100;
-                } else {
-                    contractSize = Number(match2[0][1]);
-                }
+
+            // if (match2[0]?.length > 1) {
+            //     if (match2[0][2] == "oz") {
+            //         contractSize = Number(match2[0][1])/100;
+            //     } else {
+            //         contractSize = Number(match2[0][1]);
+            //     }
+            // }
+            if(!prices[`${base_currency}${transaction.currency}`]) {
+                this.load_currency.push(this.findCurrency(base_currency, transaction.currency));
             }
+
+            var fx = this.getCurrencyRate(base_currency, transaction.currency, date)
             
             var tx2: Transaction = {
                 Date: date,
@@ -318,7 +328,8 @@ export const IGAccount = class IGAccount {
                 Charges: "0",
                 ContractSize: contractSize.toString(),
                 Epic: "",
-                Price: transaction.price
+                Price: transaction.price,
+                "Cost/Proceeds": ( (-Number(transaction.quantity) * Number(transaction.price) * contractSize) / fx ).toString()
             }
             tx.push(tx2);
         }
@@ -419,8 +430,7 @@ export const IGAccount = class IGAccount {
         this.positions = {};
         this.transactions = [];
         this.load_prices = [];
-        this.load_currency = [];
-
+        
         var tx = csvData;
 
         tx.sort((a, b) => {
@@ -429,19 +439,16 @@ export const IGAccount = class IGAccount {
             return ad - bd;
         });
 
-        tx = this.parseManualtx(tx);
-
-        this.start_date = new Date(tx[0].Date);
+        this.start_date = new Date(tx[0].date);
         this.end_date = new Date();
         this.end_date.setHours(0, 0, 0, 0);
 
+        tx = this.parseManualtx(tx);
+        
         for (var i = 0; i < tx.length; i++) {
             var date = new Date(tx[i].Date);
             this.addTransactionManual(tx[i].Market, date, tx[i]);
         }
-
-        this.load_currency.push(this.findCurrency("GBP", "USD"));
-        this.load_currency.push(this.findCurrency("GBP", "EUR"));
 
         this.transactions = tx;
         
@@ -651,9 +658,9 @@ export const IGAccount = class IGAccount {
         return positions;
     }
 
-    async findCurrency(current : string, base : string) : Promise<string> {
+    async findCurrency(base : string, current : string) : Promise<string> {
         var ticker;
-        var name = `${current}${base}`
+        var name = `${base}${current}`
         if (!this.offlineMode) {
             if (name in tickers && tickers_dates[name].getTime() <= new Date(this.start_date).getTime())  {
                 return tickers[name];
@@ -663,18 +670,17 @@ export const IGAccount = class IGAccount {
             ticker = `${name}=X`;
         
             tickers[name] = ticker;
-            await this.getCurrency(name, current, base, ticker, this.start_date, this.end_date)
+            await this.getCurrency(name, base, current, ticker, this.start_date, this.end_date)
             return ticker;
         } else {
             ticker = tickers[name];
-            var resp = ticker;
             if(ticker && ticker[0]!='[')
-                resp = this.getCurrency(name, current, base, ticker, this.start_date, this.end_date).then(()=>{return ticker});
-            return resp;
+                await this.getCurrency(name, base, current, ticker, this.start_date, this.end_date);
+            return ticker;
         }
     }
 
-    async getCurrency(name, current, base, ticker, from, to) {
+    async getCurrency(name, base, current, ticker, from, to) {
         var price;
         if (!this.offlineMode) {
             from = from.toLocaleDateString("en-CA");
@@ -683,8 +689,8 @@ export const IGAccount = class IGAccount {
             prices[name] = [];
             try {
                 const parameter = {
-                    current_currency: current,
                     base_currency: base,
+                    current_currency: current,
                     from: from,
                     to: to
                 }
@@ -722,6 +728,26 @@ export const IGAccount = class IGAccount {
         done++;
         
         return price;
+    }
+
+    getCurrencyRate(base, current, date) {
+        let rate = 1;
+
+        const name = `${base}${current}`
+        let eod_currency_data = prices[name]
+        if(eod_currency_data) {
+            for(let i=0; i<eod_currency_data.length; i++) {
+                let temp_date = eod_currency_data[i].date;
+                if(temp_date.toISOString().slice(0, 10) === date.toISOString().slice(0, 10)) {
+                    rate = eod_currency_data[i].adjClose
+                    break;
+                }
+            }
+        }
+
+        console.log(rate);
+
+        return rate;
     }
 
     async findticker(name : string, fx : string, tx? : Transaction) : Promise<string> {
@@ -828,18 +854,18 @@ export const IGAccount = class IGAccount {
                         element.volume = Number(element.volume)
                     });
                     prices[name] = price;
-                    console.log(price)
                 }
             } catch (err) {
                 prices[name] = prices_offline[name];
-                prices[name].forEach((element)=>element.date=new Date(element.date));
+                if(prices[name]) {
+                    prices[name].forEach((element)=>element.date=new Date(element.date));
+                }
             }
 
         } else {
             if(this.getallprices()) return price;
             prices[name].forEach((element)=>element.date=new Date(element.date));
             price = prices[name];
-            console.log(price)
         }
         done++;
         
