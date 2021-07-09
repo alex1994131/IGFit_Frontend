@@ -732,6 +732,11 @@ export const IGAccount = class IGAccount {
                     });
                     prices[name] = price;
                 }
+                else { 
+                    if(price.flag == 1) {
+                        // 
+                    }
+                }
             } catch (err) {
                 prices[name] = prices_offline[name];
                 prices[name].forEach((element)=>element.date=new Date(element.date));
@@ -874,6 +879,11 @@ export const IGAccount = class IGAccount {
                     });
                     prices[name] = price;
                 }
+                else { 
+                    if(price.flag == 1) {
+                        // 
+                    }
+                }
             } catch (err) {
                 prices[name] = prices_offline[name];
                 if(prices[name]) {
@@ -943,7 +953,7 @@ export const IGAccount = class IGAccount {
                         return element.date.getTime() == compare_time;
                     }) || 0;
 
-                    if(position.currency==this.base_currency && (this.type=="ISA" || this.type=="SHD")){
+                    if(position.currency==this.base_currency && (this.type=="ISA" || this.type=="SHD" || this.type=="MANUALINPUT")){
                         position.market_price.close = position.market_price.close/100;
                     }
 
