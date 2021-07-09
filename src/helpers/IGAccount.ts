@@ -325,7 +325,7 @@ export const IGAccount = class IGAccount {
             console.log(`${this.base_currency}-${transaction.currency} : ${fx}`)
 
             
-            if(transaction.currency === this.base_currency) {
+            if(transaction.currency === "GBP" || transaction.currency === "GBX") {
                 transaction.price = (Number(transaction.price)/100).toString()
             }
 
@@ -953,7 +953,7 @@ export const IGAccount = class IGAccount {
                         return element.date.getTime() == compare_time;
                     }) || 0;
 
-                    if(position.currency==this.base_currency && (this.type=="ISA" || this.type=="SHD" || this.type=="MANUALINPUT")){
+                    if((position.currency=="GBP" || position.currency =="GBX") && (this.type=="ISA" || this.type=="SHD" || this.type=="MANUALINPUT")) {
                         position.market_price.close = position.market_price.close/100;
                     }
 
