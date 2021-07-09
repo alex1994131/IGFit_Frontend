@@ -85,7 +85,7 @@ const Setting = (props) => {
         if (current_user.user && currency == '') {
             setCurrency(current_user.user.currency)
         }
-    });
+    }, [props])
 
     return (
         <>

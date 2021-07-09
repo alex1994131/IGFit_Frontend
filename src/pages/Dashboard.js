@@ -297,7 +297,7 @@ const Dashboard = (props) => {
         {
             menuItem: 'Settings',
             pane: {
-                content: (<Setting />),
+                content: (<Setting reRender={true} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Settings'
