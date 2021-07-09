@@ -1157,7 +1157,7 @@ export const IGAccount = class IGAccount {
             }
         }
 
-        if(this.type=="ISA"||this.type=="SHD") {
+        if(this.type=="ISA"||this.type=="SHD"||this.type=="MANUALINPUT") {
             this.calc = searchdata.concat(searchdata2).concat(searchdata3).concat(searchdata4);
         } else if (this.type=="CFD") {
             this.calc = searchdata4;
