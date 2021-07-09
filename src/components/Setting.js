@@ -84,7 +84,7 @@ const Setting = (props) => {
 
     useEffect(() => {
         if (current_user.user.currency) {
-            console.log('-----------------------okokokoo')
+            console.log(current_user.user.currency)
             setDefaultValue(current_user.user.currency)
         }
     });
@@ -93,7 +93,7 @@ const Setting = (props) => {
         <>
             <Container fluid>
                 <label>Base Currency</label>
-                <Dropdown placeholder='Base Currency' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} defaultValue={defaultValue} fluid selection options={base_currency} />
+                <Dropdown placeholder='Base Currency' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} value={defaultValue} fluid selection options={base_currency} />
                 <Divider />
                 <Button color='red' onClick={(e) => onSaveCurrency(e)}>
                     <Icon name='save' /> Save

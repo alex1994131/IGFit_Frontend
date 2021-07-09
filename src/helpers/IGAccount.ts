@@ -212,7 +212,11 @@ export const IGAccount = class IGAccount {
         // this.setChart2 = setChart2;
         // this.setPositions = setPositions;
         this.setDataLoaded = setDataLoaded;
+
         this.base_currency = base_currency
+
+        console.log('-------------', this.base_currency)
+        
         this.offlineMode = offlineMode;
         if (!offlineMode) {
             // tickers = {};
