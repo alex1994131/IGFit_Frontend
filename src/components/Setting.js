@@ -62,10 +62,10 @@ const Setting = (props) => {
         }
     ]
 
-    const [defaultValue, setDefaultValue] = useState('');
     const [currency, setCurrency] = useState('')
 
     const onBaseCurrencyChange = async (e, data) => {
+        console.log(data.value)
         setCurrency(data.value)
     }
 
@@ -73,9 +73,8 @@ const Setting = (props) => {
         const accessToken = getSession()
         const result = await updateBaseCurrency(accessToken, currency)
         if (result.status) {
-            console.log(result.data)
             current_user.updateUserDetails(result.data)
-            setDefaultValue(currency)
+            setCurrency(result.data.currency)
         }
         else {
             alert(result.data)
@@ -83,10 +82,8 @@ const Setting = (props) => {
     }
 
     useEffect(() => {
-
-        if (current_user.user) {
-            console.log(current_user.user.currency)
-            setDefaultValue(current_user.user.currency)
+        if (current_user.user && currency == '') {
+            setCurrency(current_user.user.currency)
         }
     });
 
@@ -94,7 +91,7 @@ const Setting = (props) => {
         <>
             <Container fluid>
                 <label>Base Currency</label>
-                <Dropdown placeholder='Base Currency' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} value={defaultValue} fluid selection options={base_currency} />
+                <Dropdown placeholder='Base Currency' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} value={currency} fluid selection options={base_currency} />
                 <Divider />
                 <Button color='red' onClick={(e) => onSaveCurrency(e)}>
                     <Icon name='save' /> Save

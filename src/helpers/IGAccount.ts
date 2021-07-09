@@ -325,7 +325,7 @@ export const IGAccount = class IGAccount {
             console.log(`${this.base_currency}-${transaction.currency} : ${fx}`)
 
             
-            if(transaction.currency === 'GBP') {
+            if(transaction.currency === this.base_currency) {
                 transaction.price = (Number(transaction.price)/100).toString()
             }
 
@@ -943,13 +943,13 @@ export const IGAccount = class IGAccount {
                         return element.date.getTime() == compare_time;
                     }) || 0;
 
-                    if(position.currency=="GBP" && (this.type=="ISA" || this.type=="SHD")){
+                    if(position.currency==this.base_currency && (this.type=="ISA" || this.type=="SHD")){
                         position.market_price.close = position.market_price.close/100;
                     }
 
                     position.actual_fx = 1;
-                    if (position.currency != "GBP") {
-                        position.actual_fx = prices["GBP" + position.currency].find(element => {
+                    if (position.currency != this.base_currency) {
+                        position.actual_fx = prices[`${this.base_currency}${position.currency}`].find(element => {
                             // var new_date = new Date(element.date);
                             // var compare_date = new Date(position_day.date);
                             // compare_date.setUTCHours(5);
@@ -1075,23 +1075,47 @@ export const IGAccount = class IGAccount {
                 }
             }
         }
+
+        console.log(positions)
+
         var searchdata = positions.map((element) => {
+            // var USD_FX = prices["GBPUSD"].find(element2 => {
+            //     var new_date = new Date(element2.date);
+            //     var compare_date = new Date(element.date);
+            //     compare_date.setUTCHours(5);
+            //     return new_date.getTime() == compare_date.getTime();
+            // }) || 0;
 
-            var USD_FX = prices["GBPUSD"].find(element2 => {
-                var new_date = new Date(element2.date);
-                var compare_date = new Date(element.date);
-                compare_date.setUTCHours(5);
-                return new_date.getTime() == compare_date.getTime();
-            }) || 0;
+            // var EUR_FX = prices["GBPEUR"].find(element2 => {
+            //     var new_date = new Date(element2.date);
+            //     var compare_date = new Date(element.date);
+            //     compare_date.setUTCHours(5);
+            //     return new_date.getTime() == compare_date.getTime();
+            // }) || 0;
 
-            var EUR_FX = prices["GBPEUR"].find(element2 => {
-                var new_date = new Date(element2.date);
-                var compare_date = new Date(element.date);
-                compare_date.setUTCHours(5);
-                return new_date.getTime() == compare_date.getTime();
-            }) || 0;
+            // var value = (element.market_value["USD"] ?? 0) / USD_FX.close + (element.market_value["EUR"] ?? 0) / EUR_FX.close + (element.market_value["GBP"] ?? 0);
 
-            var value = (element.market_value["USD"] ?? 0) / USD_FX.close + (element.market_value["EUR"] ?? 0) / EUR_FX.close + (element.market_value["GBP"] ?? 0);
+            var value = 0;
+
+            for (let [currency_name, market_value] of Object.entries(element.market_value)) {
+                let FX;
+                if (currency_name != this.base_currency) {
+                    FX = prices[this.base_currency + currency_name].find(element2 => {
+                        var new_date = new Date(element2.date);
+                        var compare_date = new Date(element.date);
+                        compare_date.setUTCHours(5);
+                        return new_date.getTime() == compare_date.getTime();
+                    }) || 0;
+                } else {
+                    FX = 1
+                }
+
+                if(FX.close) {
+                    FX = FX.close;
+                }
+
+                value += market_value / FX;
+            }
 
             return { x: element.date, y: value, category: "value" };
         });
