@@ -70,7 +70,10 @@ const Dashboard = (props) => {
                 const current_portfolio = querystring.parse(d)
                 setPortfolio(current_portfolio)
 
+                if (!current_user.user) return;
+
                 const base_currency = current_user.user.currency
+
 
                 if (newApi == 0) {
                     IG.downloadactivity(0, offlineMode).then((igdata) => {

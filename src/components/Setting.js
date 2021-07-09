@@ -83,7 +83,8 @@ const Setting = (props) => {
     }
 
     useEffect(() => {
-        if (current_user.user.currency) {
+
+        if (current_user.user) {
             console.log(current_user.user.currency)
             setDefaultValue(current_user.user.currency)
         }
