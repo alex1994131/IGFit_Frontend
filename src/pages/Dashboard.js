@@ -71,10 +71,7 @@ const Dashboard = (props) => {
     }, [])
 
     useEffect(() => {
-        console.log('Dashboard', current_user.currency)
         const fetchData = async () => {
-            if (!current_user.currency === '') return;
-
             let d = history.location.search
             const current_portfolio = querystring.parse(d)
 
@@ -85,13 +82,13 @@ const Dashboard = (props) => {
                     var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded, base_currency);
                     // var acc2 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
 
-                    if (!offlineMode) {
-                        var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd, base_currency);
-                        var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd, base_currency);
-                    } else {
-                        var acc3 = acc2;
-                        var acc4 = acc2;
-                    }
+                    // if (!offlineMode) {
+                    //     var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd, base_currency);
+                    //     var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd, base_currency);
+                    // } else {
+                    //     var acc3 = acc2;
+                    //     var acc4 = acc2;
+                    // }
                     setAcc(acc2);
                     // setAccCfd(acc3);
                     // setAccShd(acc4);
@@ -103,12 +100,12 @@ const Dashboard = (props) => {
                     if (transactions.status) {
                         console.log('11111111111111')
                         if (transactions.data.length > 0) {
-                            console.log('222222222222222')
-                            console.log(transactions.data)
                             setTransaction(transactions.data)
                             dispatch(setTransactionData(transactions.data))
-                            var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
-                            setAcc(igAccount);
+                            // if (base_currency === '') {
+                            //     var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
+                            //     setAcc(igAccount);
+                            // }
                         }
                         else {
                             setDataLoaded(1)
@@ -125,19 +122,26 @@ const Dashboard = (props) => {
                 setDatatx(data);
                 setPx(new Pocketsmith.Px(data));
             });
+
+            setFetch(1);
         };
 
-        fetchData()
-    }, [current_user.email]);
+        if (!fetch) {
+            fetchData()
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (transactionData.length == 0 || current_user.currency == '') return;
-            console.log('--------------Updated-----------------')
+        console.log('222222222222222')
 
-            const base_currency = current_user.currency
-            var igAccount = new IGAccount(transactionData, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
-            setAcc(igAccount);
+        const fetchData = async () => {
+            if (transactionData && transactionData.length !== 0 && current_user.currency !== '') {
+                console.log(transactionData)
+                console.log(current_user.currency)
+                const base_currency = current_user.currency
+                var igAccount2 = new IGAccount(transactionData, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
+                setAcc(igAccount2);
+            };
         };
         fetchData()
     }, [transactionData, current_user.currency]);

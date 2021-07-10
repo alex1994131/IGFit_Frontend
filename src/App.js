@@ -12,7 +12,6 @@ const App = props => {
     useEffect(() => {
         if (localStorage['jwtToken'] && localStorage['jwtToken'] !== "undefined") {
             dispatch(setSignIn(localStorage['jwtToken']))
-            console.log("accesstokenInitialize")
         }
     }, [])
 
