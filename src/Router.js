@@ -1,5 +1,4 @@
 import React, { Suspense, lazy } from 'react'
-import { history } from "./history"
 import { Switch, Route, Redirect } from "react-router-dom"
 import FallbackSpinner from "./components/Loading"
 import MainLayoutTag from "./layouts/MainLayout"
@@ -33,7 +32,7 @@ const AppRoute = (RouteConfig)
 
 const RouterManager = () => {
     return (
-        <Router history={history}>
+        <Router>
             <Switch>
                 <AppRoute exact path="/" component={Portfolio} layout='main' />
                 <AppRoute path="/dashboard" component={Dashboard} layout='main' />

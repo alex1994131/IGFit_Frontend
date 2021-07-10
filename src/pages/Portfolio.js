@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
+import { useSelector } from "react-redux"
 
 import { Container, Button, Icon, Table, Header, Modal, Input, Message } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
 import Pagination from '../components/Pagination'
-
-import { getSession } from '../stores/actions/userAction';
 import { getPortfolio, newPortfolio } from '../stores/actions/portfolioAction';
 
 const Portfolio = (props) => {
 
     const history = useHistory();
+    const accessToken = useSelector((state) => state.auth.authorizationToken)
 
     const [error, setError] = useState("")
     const [portfolio, setPortfolio] = useState([]);
@@ -46,7 +46,6 @@ const Portfolio = (props) => {
             return setError('Please enter new portfolio name')
         }
 
-        const accessToken = getSession()
         const res = await newPortfolio(newPortfolioName, accessToken);
         if (res.status) {
             let data = res.data;
@@ -87,7 +86,6 @@ const Portfolio = (props) => {
     useEffect(() => {
         const fetchData = async () => {
             if (!fetch) {
-                const accessToken = getSession()
                 const res = await getPortfolio(accessToken);
                 setFetch(1);
                 if (res.status) {

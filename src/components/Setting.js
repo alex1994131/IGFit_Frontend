@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
 import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Container, Button, Dropdown, Divider, Icon } from 'semantic-ui-react'
+import { Container, Button, Dropdown, Divider, Icon, Confirm } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
-import { UserContext } from "../stores/contexts/UserContext";
-
-import { getSession } from '../stores/actions/userAction';
 import { updateBaseCurrency } from '../stores/actions/userAction';
+import { setSignOut, signoutAction } from '../stores/actions/userAction';
 
 const styles = useStyles({
     fluidInput: {
@@ -21,8 +19,8 @@ const styles = useStyles({
 const Setting = (props) => {
 
     const history = useHistory();
-
-    const current_user = useContext(UserContext);
+    const dispatch = useDispatch()
+    const accessToken = useSelector((state) => state.auth.authorizationToken)
 
     const base_currency = [
         {
@@ -63,32 +61,55 @@ const Setting = (props) => {
     ]
 
     const [currency, setCurrency] = useState('')
+    const [confirmation, setConfirmation] = useState(false)
 
     const onBaseCurrencyChange = async (e, data) => {
-        console.log(data.value)
         setCurrency(data.value)
     }
 
     const onSaveCurrency = async () => {
-        const accessToken = getSession()
         const result = await updateBaseCurrency(accessToken, currency)
         if (result.status) {
-            current_user.updateUserDetails(result.data)
             setCurrency(result.data.currency)
+            setConfirmation(true)
         }
         else {
             alert(result.data)
         }
     }
 
+    const onCancel = () => {
+        setConfirmation(false)
+    }
+
+    const onConfirm = async () => {
+        let res = await signoutAction({ token: accessToken });
+        if (res.status) {
+            setConfirmation(false)
+            localStorage.removeItem("jwtToken");
+            dispatch(setSignOut())
+            history.push("/signin");
+        } else {
+            alert("Failure");
+        }
+    }
+
     useEffect(() => {
-        if (current_user.user && currency == '') {
-            setCurrency(current_user.user.currency)
+        if (props.user) {
+            setCurrency(props.user.currency)
         }
     }, [props])
 
     return (
         <>
+            <Confirm
+                open={confirmation}
+                content='Base currency update will be effective when you next login. Log out now?'
+                cancelButton='NO'
+                confirmButton="YES"
+                onCancel={onCancel}
+                onConfirm={onConfirm}
+            />
             <Container fluid>
                 <label>Base Currency</label>
                 <Dropdown placeholder='Base Currency' onChange={onBaseCurrencyChange} style={{ width: '100%', marginBottom: '10px' }} value={currency} fluid selection options={base_currency} />

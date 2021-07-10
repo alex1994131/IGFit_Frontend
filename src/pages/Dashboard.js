@@ -30,16 +30,12 @@ import TablePxAcc from "../components/table/TablePxAcc";
 import TablePx4 from "../components/table/TablePx4"
 import TableIG31 from "../components/table/TableIG3_1.tsx"
 
-import { getSession } from '../stores/actions/userAction';
-import { getPrice } from '../stores/actions/priceAction';
-
 const offlineMode = 0;
 const newApi = 1;
 
 const Dashboard = (props) => {
 
     const history = useHistory();
-
     const current_user = useContext(UserContext);
 
     const [portfolio, setPortfolio] = useState({})
@@ -64,72 +60,66 @@ const Dashboard = (props) => {
     const [priceData, setPriceData] = useState([]);
 
     useEffect(() => {
+        let d = history.location.search
+        const current_portfolio = querystring.parse(d)
+        setPortfolio(current_portfolio)
+    }, [])
+
+    useEffect(() => {
+        console.log("when current-user is changed", current_user.user)
         const fetchData = async () => {
-            if (!fetch) {
-                let d = history.location.search
-                const current_portfolio = querystring.parse(d)
-                setPortfolio(current_portfolio)
+            if (!current_user.user) return;
 
-                if (!current_user.user) return;
+            let d = history.location.search
+            const current_portfolio = querystring.parse(d)
 
-                const base_currency = current_user.user.currency
+            const base_currency = current_user.user.currency
+            if (newApi == 0) {
+                IG.downloadactivity(0, offlineMode).then((igdata) => {
+                    var csvdata2 = igdata;
+                    var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded, base_currency);
+                    // var acc2 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
 
-
-                if (newApi == 0) {
-                    IG.downloadactivity(0, offlineMode).then((igdata) => {
-                        var csvdata2 = igdata;
-                        var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoaded, base_currency);
-                        // var acc2 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd);
-
-                        if (!offlineMode) {
-                            var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd, base_currency);
-                            var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd, base_currency);
-                        } else {
-                            var acc3 = acc2;
-                            var acc4 = acc2;
-                        }
-                        setAcc(acc2);
-                        // setAccCfd(acc3);
-                        // setAccShd(acc4);
-                        //setDataLoaded(1);
-                    });
-                }
-                else {
-                    IG.getTransactions(current_portfolio.id).then((transactions) => {
-                        if (transactions.status) {
+                    if (!offlineMode) {
+                        var acc3 = new IGAccount(csvdata2.CFD.activity, "CFD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedCfd, base_currency);
+                        var acc4 = new IGAccount(csvdata2.SHD.trades, "SHD", offlineMode, /* setData, setCalc, setChart, setChart2, setPositions, */ setDataLoadedShd, base_currency);
+                    } else {
+                        var acc3 = acc2;
+                        var acc4 = acc2;
+                    }
+                    setAcc(acc2);
+                    // setAccCfd(acc3);
+                    // setAccShd(acc4);
+                    //setDataLoaded(1);
+                });
+            }
+            else {
+                IG.getTransactions(current_portfolio.id).then((transactions) => {
+                    if (transactions.status) {
+                        if (transactions.data.length > 0) {
                             setTransaction(transactions.data)
                             var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
                             setAcc(igAccount);
                         }
                         else {
-                            history.push("/signin");
+                            setDataLoaded(1)
                         }
-                    });
-                }
-
-                Pocketsmith.fetchAllTransactions(offlineMode).then((tx) => {
-                    var data = tx.map((element) => JSON.flatten(element));
-                    setDatatx(data);
-                    setPx(new Pocketsmith.Px(data));
+                    }
+                    else {
+                        history.push("/signin");
+                    }
                 });
-
-
-                // const accessToken = getSession()
-                // const price_result = await getPrice(accessToken)
-                // const result = await getStock(transname, accessToken)
-                // if (result.status) {
-                //     setPriceData(result.data)
-                // }
-                // else {
-                //     alert(result.data)
-                // }
-
-                setFetch(1);
             }
-        };
 
-        fetchData();
-    });
+            Pocketsmith.fetchAllTransactions(offlineMode).then((tx) => {
+                var data = tx.map((element) => JSON.flatten(element));
+                setDatatx(data);
+                setPx(new Pocketsmith.Px(data));
+            });
+            setFetch(1);
+        };
+        if (!fetch) fetchData()
+    }, [current_user.user]);
 
     const panes = [
         {
@@ -297,7 +287,7 @@ const Dashboard = (props) => {
         {
             menuItem: 'Settings',
             pane: {
-                content: (<Setting reRender={true} />),
+                content: (<Setting user={current_user.user} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Settings'

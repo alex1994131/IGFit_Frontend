@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
+import { useHistory } from "react-router";
 import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
 import { Link } from "react-router-dom"
 
 import { signupAction } from '../stores/actions/userAction';
 
 const SignUpForm = (props) => {
+
+    const history = useHistory();
 
     const [error, setError] = useState("")
     const [username, setUserName] = useState("")
@@ -40,7 +43,7 @@ const SignUpForm = (props) => {
 
         let res = await signupAction(user_info);
         if (res.status) {
-            props.history.push('/signin')
+            history.push('/signin')
         } else {
             alert(res.message)
         }

@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react'
 import { useDispatch } from 'react-redux';
+import { useHistory } from "react-router";
 import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
 import { Link } from "react-router-dom"
-
 
 import { setSignIn, signinAction } from '../stores/actions/userAction';
 
@@ -12,7 +12,7 @@ const SignInForm = (props) => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const dispatch = useDispatch()
-
+    const history = useHistory();
 
     const onSignIn = async (e) => {
         e.preventDefault();
@@ -39,7 +39,7 @@ const SignInForm = (props) => {
             delete res.accessToken;
             localStorage.setItem('jwtToken', token);
             dispatch(setSignIn(token))
-            props.history.push("/");
+            history.push("/");
         } else {
             alert(res.message);
         }

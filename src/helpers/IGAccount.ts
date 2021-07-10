@@ -1,8 +1,4 @@
-//import yahooFinance from 'yahoo-finance';
-
 import {tickers_offline, prices_offline} from '../data/pricesoffline.js'
-//import fetch from "node-fetch"
-
 import { getPrice, getCurrency } from '../stores/actions/transactionAction';
 import { getSession } from '../stores/actions/userAction';
 
@@ -215,8 +211,6 @@ export const IGAccount = class IGAccount {
 
         this.base_currency = base_currency
 
-        console.log('-------------', this.base_currency)
-        
         this.offlineMode = offlineMode;
         if (!offlineMode) {
             // tickers = {};
@@ -448,9 +442,8 @@ export const IGAccount = class IGAccount {
         this.load_prices = [];
         this.load_currency = [];
 
-        
         var tx = csvData;
-
+        
         tx.sort((a, b) => {
             var ad = new Date(a.date).getTime();
             var bd = new Date(b.date).getTime();

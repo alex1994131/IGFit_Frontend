@@ -1,21 +1,23 @@
 import React from "react"
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from "react-router";
 import { Container, Header, Divider, Button } from "semantic-ui-react";
 
-import { getSession, setSignOut, signoutAction } from '../stores/actions/userAction';
+import { setSignOut, signoutAction } from '../stores/actions/userAction';
 
 const PageHeader = (props) => {
 
     const dispatch = useDispatch()
+    const history = useHistory();
+
+    const accessToken = useSelector((state) => state.auth.authorizationToken)
 
     const onSignOut = async (e) => {
-        const accessToken = getSession()
-
         let res = await signoutAction({ token: accessToken });
         if (res.status) {
             localStorage.removeItem("jwtToken");
             dispatch(setSignOut())
-            props.push("/signin");
+            history.push("/signin");
         } else {
             alert("Failure");
         }

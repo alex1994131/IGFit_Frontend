@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux"
 import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
 
@@ -10,7 +11,6 @@ import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 import Pagination from './Pagination'
 
-import { getSession } from '../stores/actions/userAction';
 import { addTransaction, deleteTransaction, getTicker } from '../stores/actions/transactionAction';
 
 const styles = useStyles({
@@ -23,6 +23,7 @@ const styles = useStyles({
 const Transaction = (props) => {
 
     const history = useHistory();
+    const accessToken = useSelector((state) => state.auth.authorizationToken)
 
     const [transaction, setTransaction] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(props.dataLoaded);
@@ -108,7 +109,6 @@ const Transaction = (props) => {
             commission: transcommission
         }
 
-        const accessToken = getSession()
         const res = await addTransaction(transaction_data, accessToken);
         if (res.status) {
             let data = res.data;
@@ -159,7 +159,6 @@ const Transaction = (props) => {
     }
 
     const onDeleteTransaction = async (id) => {
-        const accessToken = getSession()
         const res = await deleteTransaction(id, portfolio, accessToken);
         if (res.status) {
             let data = res.data;
@@ -184,7 +183,6 @@ const Transaction = (props) => {
                 setTicker([])
             }
             else {
-                const accessToken = getSession()
                 const result = await getTicker(transname, accessToken)
                 if (result.status) {
                     console.log(result.data)
