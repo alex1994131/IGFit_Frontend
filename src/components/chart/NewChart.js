@@ -4,7 +4,7 @@ import { formatDate, useBreakpoints } from "../../helpers/utils"
 
 const NewChart = props => {
 
-    var data = props.data;
+    var data = props.data ?? [];
     var calc = props.calc ?? [];
     var type = props.type ?? "column";
     const ref = useRef();

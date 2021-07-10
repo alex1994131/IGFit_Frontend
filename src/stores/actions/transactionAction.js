@@ -41,3 +41,9 @@ export const getCurrency = async (token, data) => {
     const res = await axios.create(axios_config).post(`/get_currency`, data)
     return res.data
 }
+
+export const setTransactionData = (transaction) => {
+    return dispatch => {
+        dispatch({ type: actionTypes.SET_TRANSACTION, transaction: transaction });
+    }
+}

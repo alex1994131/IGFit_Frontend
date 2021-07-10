@@ -18,13 +18,8 @@ const App = (props) => {
 
     if (dataLoaded == 2 && acc) {
         data = acc.chartdata2;
-        //}
-
-        //if (dataLoaded==2 && Object.keys(data).length > 0) {
         var charts = []
-        // var rows = 0;
-        // var cols = 0;
-        // var rowchart = []
+
         for (var key of Object.keys(data)) {
             charts.push(<Grid.Column key={key + "col"}><NewChart key={key} data={data[key]}
                 type="line"

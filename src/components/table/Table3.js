@@ -45,6 +45,7 @@ const App = (props) => {
     useEffect(() => {
         if (dataLoaded && acc) {
             setData(acc.getData().slice())
+
             if (dataLoaded == 2) {
                 setCalc(acc.getCalc());
             }

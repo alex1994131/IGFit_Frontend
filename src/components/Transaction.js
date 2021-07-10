@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
 
@@ -11,7 +11,7 @@ import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 import Pagination from './Pagination'
 
-import { addTransaction, deleteTransaction, getTicker } from '../stores/actions/transactionAction';
+import { addTransaction, deleteTransaction, getTicker, setTransactionData } from '../stores/actions/transactionAction';
 
 const styles = useStyles({
     fluidInput: {
@@ -23,7 +23,9 @@ const styles = useStyles({
 const Transaction = (props) => {
 
     const history = useHistory();
+    const dispatch = useDispatch()
     const accessToken = useSelector((state) => state.auth.authorizationToken)
+    const transactionData = useSelector((state) => state.transaction.transactionData);
 
     const [transaction, setTransaction] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(props.dataLoaded);
@@ -87,6 +89,10 @@ const Transaction = (props) => {
             return setError('Please enter Date')
         }
 
+        if (new Date(transdate).getTime() > new Date().getTime()) {
+            return setError('Please enter Correct Date. Transaction Date can not be bigger than now')
+        }
+
         if (!transprice) {
             return setError('Please enter Price')
         }
@@ -112,6 +118,7 @@ const Transaction = (props) => {
         const res = await addTransaction(transaction_data, accessToken);
         if (res.status) {
             let data = res.data;
+            dispatch(setTransactionData(data))
             data.map((d, idx) => {
                 d.no = idx;
             })
@@ -135,7 +142,6 @@ const Transaction = (props) => {
 
     const onTickerChange = (e, data) => {
         setTransTicker(data.value)
-        // setTicker([])
     }
 
     const onDirectionChange = (e, data) => {
@@ -143,7 +149,9 @@ const Transaction = (props) => {
     }
 
     const onDateChange = (e, data) => {
-        setTransDate(data.value)
+        let transaction_date = new Date(data.value)
+        let time = transaction_date.toISOString()
+        setTransDate(time)
     }
 
     const onPriceChange = (e) => {
@@ -162,6 +170,7 @@ const Transaction = (props) => {
         const res = await deleteTransaction(id, portfolio, accessToken);
         if (res.status) {
             let data = res.data;
+            dispatch(setTransactionData(data))
             data.map((d, idx) => {
                 d.no = idx;
             })
@@ -185,14 +194,13 @@ const Transaction = (props) => {
             else {
                 const result = await getTicker(transname, accessToken)
                 if (result.status) {
-                    console.log(result.data)
-                    console.log(transname)
-                    console.log(typeof transname === typeof '')
                     if (transname === '') {
                         setTicker([])
                     }
                     else {
-                        setTicker(result.data)
+                        if (result.data[0] !== null) {
+                            setTicker(result.data)
+                        }
                     }
                 }
                 else {

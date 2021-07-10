@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useStyles } from 'react-styles-hook'
 import { useHistory } from "react-router";
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Container, Button, Dropdown, Divider, Icon, Confirm } from 'semantic-ui-react'
 import 'semantic-ui-less/semantic.less'
 
+import { UserContext } from "../stores/contexts/UserContext";
 import { updateBaseCurrency } from '../stores/actions/userAction';
-import { setSignOut, signoutAction } from '../stores/actions/userAction';
 
 const styles = useStyles({
     fluidInput: {
@@ -21,6 +21,8 @@ const Setting = (props) => {
     const history = useHistory();
     const dispatch = useDispatch()
     const accessToken = useSelector((state) => state.auth.authorizationToken)
+
+    const current_user = useContext(UserContext);
 
     const base_currency = [
         {
@@ -68,14 +70,7 @@ const Setting = (props) => {
     }
 
     const onSaveCurrency = async () => {
-        const result = await updateBaseCurrency(accessToken, currency)
-        if (result.status) {
-            setCurrency(result.data.currency)
-            setConfirmation(true)
-        }
-        else {
-            alert(result.data)
-        }
+        setConfirmation(true)
     }
 
     const onCancel = () => {
@@ -83,20 +78,25 @@ const Setting = (props) => {
     }
 
     const onConfirm = async () => {
-        let res = await signoutAction({ token: accessToken });
-        if (res.status) {
+        const result = await updateBaseCurrency(accessToken, currency)
+        if (result.status) {
+            setCurrency(result.data.currency)
+            current_user.updateUserDetails({
+                username: result.data.username,
+                email: result.data.email,
+                currency: result.data.currency,
+                portfolio: result.data.portfolio
+            })
             setConfirmation(false)
-            localStorage.removeItem("jwtToken");
-            dispatch(setSignOut())
-            history.push("/signin");
-        } else {
-            alert("Failure");
+        }
+        else {
+            alert(result.data)
         }
     }
 
     useEffect(() => {
-        if (props.user) {
-            setCurrency(props.user.currency)
+        if (props.currency) {
+            setCurrency(props.currency)
         }
     }, [props])
 

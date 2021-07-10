@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 import querystring from "query-string"
@@ -30,13 +31,17 @@ import TablePxAcc from "../components/table/TablePxAcc";
 import TablePx4 from "../components/table/TablePx4"
 import TableIG31 from "../components/table/TableIG3_1.tsx"
 
+import { setTransactionData } from '../stores/actions/transactionAction';
+
 const offlineMode = 0;
 const newApi = 1;
 
 const Dashboard = (props) => {
 
     const history = useHistory();
+    const dispatch = useDispatch()
     const current_user = useContext(UserContext);
+    const transactionData = useSelector((state) => state.transaction.transactionData);
 
     const [portfolio, setPortfolio] = useState({})
     const [transactions, setTransaction] = useState([]);
@@ -66,14 +71,14 @@ const Dashboard = (props) => {
     }, [])
 
     useEffect(() => {
-        console.log("when current-user is changed", current_user.user)
+        console.log('Dashboard', current_user.currency)
         const fetchData = async () => {
-            if (!current_user.user) return;
+            if (!current_user.currency === '') return;
 
             let d = history.location.search
             const current_portfolio = querystring.parse(d)
 
-            const base_currency = current_user.user.currency
+            const base_currency = current_user.currency
             if (newApi == 0) {
                 IG.downloadactivity(0, offlineMode).then((igdata) => {
                     var csvdata2 = igdata;
@@ -96,8 +101,12 @@ const Dashboard = (props) => {
             else {
                 IG.getTransactions(current_portfolio.id).then((transactions) => {
                     if (transactions.status) {
+                        console.log('11111111111111')
                         if (transactions.data.length > 0) {
+                            console.log('222222222222222')
+                            console.log(transactions.data)
                             setTransaction(transactions.data)
+                            dispatch(setTransactionData(transactions.data))
                             var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
                             setAcc(igAccount);
                         }
@@ -116,10 +125,22 @@ const Dashboard = (props) => {
                 setDatatx(data);
                 setPx(new Pocketsmith.Px(data));
             });
-            setFetch(1);
         };
-        if (!fetch) fetchData()
-    }, [current_user.user]);
+
+        fetchData()
+    }, [current_user.email]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (transactionData.length == 0 || current_user.currency == '') return;
+            console.log('--------------Updated-----------------')
+
+            const base_currency = current_user.currency
+            var igAccount = new IGAccount(transactionData, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
+            setAcc(igAccount);
+        };
+        fetchData()
+    }, [transactionData, current_user.currency]);
 
     const panes = [
         {
@@ -287,7 +308,7 @@ const Dashboard = (props) => {
         {
             menuItem: 'Settings',
             pane: {
-                content: (<Setting user={current_user.user} />),
+                content: (<Setting currency={current_user.currency} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Settings'
@@ -312,7 +333,7 @@ const Dashboard = (props) => {
         <>
             <Container fluid>
                 <div style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                    <Checkbox toggle label={<label>Onlne/Offline Mode</label>} />
+                    {/* <Checkbox toggle label={<label>Onlne/Offline Mode</label>} /> */}
                     <Button style={{ marginLeft: "20px" }} onClick={(e) => { history.push('/') }}>
                         Back
                     </Button>

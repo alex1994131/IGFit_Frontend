@@ -4,7 +4,13 @@ import merge from 'lodash.merge'
 import { getUserAuth } from '../actions/userAction'
 import { useHistory, useLocation } from "react-router-dom";
 
-const UserContext = createContext(null)
+const UserContext = createContext({
+    username: '',
+    email: '',
+    currency: '',
+    portfolio: [],
+    updateUserDetails: userDetails => { }
+})
 
 const UserProvider = ({ children }) => {
 
@@ -12,16 +18,29 @@ const UserProvider = ({ children }) => {
     const history = useHistory();
     const location = useLocation();
 
-    const updateUserDetails = ({ user }) => {
+    const updateUserDetails = ({
+        username,
+        email,
+        currency,
+        portfolio
+    }) => {
         setUserDetails(prevState => {
             const newState = { ...prevState }
-            return merge(newState, { user })
+            return merge(newState, {
+                username,
+                email,
+                currency,
+                portfolio
+            })
         })
     }
 
     const userState = {
-        user: null,
-        updateUserDetails,
+        username: '',
+        email: '',
+        currency: '',
+        portfolio: [],
+        updateUserDetails
     }
 
     const [userDetails, setUserDetails] = useState(userState)
@@ -34,9 +53,11 @@ const UserProvider = ({ children }) => {
 
             let res = await getUserAuth(accessToken)
             if (res.status) {
-                setUserDetails({
-                    user: res.user,
-                    updateUserDetails
+                updateUserDetails({
+                    username: res.user.username,
+                    email: res.user.email,
+                    currency: res.user.currency,
+                    portfolio: res.user.portfolio,
                 })
             }
         } else {

@@ -314,10 +314,8 @@ export const IGAccount = class IGAccount {
                 // await local_currency.push(this.findCurrency(base_currency, transaction.currency))
                 await this.findCurrency(this.base_currency, transaction.currency)
             }
-            
-            var fx = this.getCurrencyRate(this.base_currency, transaction.currency, date)
-            console.log(`${this.base_currency}-${transaction.currency} : ${fx}`)
 
+            var fx = this.getCurrencyRate(this.base_currency, transaction.currency, date)
             
             if(transaction.currency === "GBP" || transaction.currency === "GBX") {
                 transaction.price = (Number(transaction.price)/100).toString()
@@ -443,32 +441,36 @@ export const IGAccount = class IGAccount {
         this.load_currency = [];
 
         var tx = csvData;
-        
-        tx.sort((a, b) => {
-            var ad = new Date(a.date).getTime();
-            var bd = new Date(b.date).getTime();
-            return ad - bd;
-        });
-
-        this.start_date = new Date(tx[0].date);
-        this.end_date = new Date();
-        this.end_date.setHours(0, 0, 0, 0);
-
-        this.load_currency.push(this.parseManualtx(tx).then((res) => {
-            tx = res
-            for (var i = 0; i < tx.length; i++) {
-                var date = new Date(tx[i].Date);
-                this.addTransactionManual(tx[i].Market, date, tx[i]);
-            }
-    
-            this.transactions = tx;
-            
-            this.data = this.positionsBetweenDate().then((resp)=>{
-                this.data=resp;
-                this.setDataLoaded(1);
-                return resp;
+        // if(tx.length > 0) {
+            tx.sort((a, b) => {
+                var ad = new Date(a.date).getTime();
+                var bd = new Date(b.date).getTime();
+                return ad - bd;
             });
-        }))
+       
+            this.start_date = new Date(tx[0].date);
+            this.end_date = new Date();
+            this.end_date.setHours(0, 0, 0, 0);
+
+            this.load_currency.push(this.parseManualtx(tx).then((res) => {
+                tx = res
+                for (var i = 0; i < tx.length; i++) {
+                    var date = new Date(tx[i].Date);
+                    this.addTransactionManual(tx[i].Market, date, tx[i]);
+                }
+        
+                this.transactions = tx;
+                
+                this.data = this.positionsBetweenDate().then((resp)=>{
+                    this.data=resp;
+                    this.setDataLoaded(1);
+                    return resp;
+                });
+            }))
+        // }
+        // else { 
+        //     this.setDataLoaded(1);
+        // }
     }
 
     getData() {
@@ -695,8 +697,8 @@ export const IGAccount = class IGAccount {
     async getCurrency(name, base, current, ticker, from, to) {
         var price;
         if (!this.offlineMode) {
-            from = from.toLocaleDateString("en-CA");
-            to = to.toLocaleDateString("en-CA");
+            from = from.toISOString();
+            to = to.toISOString();
             
             prices[name] = [];
             try {
@@ -759,8 +761,6 @@ export const IGAccount = class IGAccount {
                 }
             }
         }
-
-        console.log(rate);
 
         return rate;
     }
@@ -1078,8 +1078,6 @@ export const IGAccount = class IGAccount {
                 }
             }
         }
-
-        console.log(positions)
 
         var searchdata = positions.map((element) => {
             // var USD_FX = prices["GBPUSD"].find(element2 => {
