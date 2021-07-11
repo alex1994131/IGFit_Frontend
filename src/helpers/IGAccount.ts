@@ -1,8 +1,4 @@
-//import yahooFinance from 'yahoo-finance';
-
 import {tickers_offline, prices_offline} from '../data/pricesoffline.js'
-//import fetch from "node-fetch"
-
 import { getPrice, getCurrency } from '../stores/actions/transactionAction';
 import { getSession } from '../stores/actions/userAction';
 
@@ -215,8 +211,6 @@ export const IGAccount = class IGAccount {
 
         this.base_currency = base_currency
 
-        console.log('-------------', this.base_currency)
-        
         this.offlineMode = offlineMode;
         if (!offlineMode) {
             // tickers = {};
@@ -320,12 +314,10 @@ export const IGAccount = class IGAccount {
                 // await local_currency.push(this.findCurrency(base_currency, transaction.currency))
                 await this.findCurrency(this.base_currency, transaction.currency)
             }
-            
-            var fx = this.getCurrencyRate(this.base_currency, transaction.currency, date)
-            console.log(`${this.base_currency}-${transaction.currency} : ${fx}`)
 
+            var fx = this.getCurrencyRate(this.base_currency, transaction.currency, date)
             
-            if(transaction.currency === this.base_currency) {
+            if(transaction.currency === "GBP" || transaction.currency === "GBX") {
                 transaction.price = (Number(transaction.price)/100).toString()
             }
 
@@ -348,6 +340,7 @@ export const IGAccount = class IGAccount {
 
             tx.push(tx2);
         }
+
         // return Promise.all(local_currency).then(() => {return(tx)});
         return tx
     }
@@ -448,15 +441,13 @@ export const IGAccount = class IGAccount {
         this.load_prices = [];
         this.load_currency = [];
 
-        
         var tx = csvData;
-
         tx.sort((a, b) => {
             var ad = new Date(a.date).getTime();
             var bd = new Date(b.date).getTime();
             return ad - bd;
         });
-
+    
         this.start_date = new Date(tx[0].date);
         this.end_date = new Date();
         this.end_date.setHours(0, 0, 0, 0);
@@ -467,15 +458,16 @@ export const IGAccount = class IGAccount {
                 var date = new Date(tx[i].Date);
                 this.addTransactionManual(tx[i].Market, date, tx[i]);
             }
-    
+
             this.transactions = tx;
-            
+
             this.data = this.positionsBetweenDate().then((resp)=>{
                 this.data=resp;
                 this.setDataLoaded(1);
                 return resp;
             });
         }))
+        
     }
 
     getData() {
@@ -702,8 +694,8 @@ export const IGAccount = class IGAccount {
     async getCurrency(name, base, current, ticker, from, to) {
         var price;
         if (!this.offlineMode) {
-            from = from.toLocaleDateString("en-CA");
-            to = to.toLocaleDateString("en-CA");
+            from = from.toISOString();
+            to = to.toISOString();
             
             prices[name] = [];
             try {
@@ -731,6 +723,12 @@ export const IGAccount = class IGAccount {
                         element.volume = Number(element.volume)
                     });
                     prices[name] = price;
+                    console.log('Prices -----------------', price)
+                }
+                else { 
+                    if(price.flag == 1) {
+                        // 
+                    }
                 }
             } catch (err) {
                 prices[name] = prices_offline[name];
@@ -761,8 +759,6 @@ export const IGAccount = class IGAccount {
                 }
             }
         }
-
-        console.log(rate);
 
         return rate;
     }
@@ -874,6 +870,11 @@ export const IGAccount = class IGAccount {
                     });
                     prices[name] = price;
                 }
+                else { 
+                    if(price.flag == 1) {
+                        // 
+                    }
+                }
             } catch (err) {
                 prices[name] = prices_offline[name];
                 if(prices[name]) {
@@ -943,7 +944,7 @@ export const IGAccount = class IGAccount {
                         return element.date.getTime() == compare_time;
                     }) || 0;
 
-                    if(position.currency==this.base_currency && (this.type=="ISA" || this.type=="SHD")){
+                    if((position.currency=="GBP" || position.currency =="GBX") && (this.type=="ISA" || this.type=="SHD" || this.type=="MANUALINPUT")) {
                         position.market_price.close = position.market_price.close/100;
                     }
 
@@ -1076,8 +1077,6 @@ export const IGAccount = class IGAccount {
             }
         }
 
-        console.log(positions)
-
         var searchdata = positions.map((element) => {
             // var USD_FX = prices["GBPUSD"].find(element2 => {
             //     var new_date = new Date(element2.date);
@@ -1157,7 +1156,7 @@ export const IGAccount = class IGAccount {
             }
         }
 
-        if(this.type=="ISA"||this.type=="SHD") {
+        if(this.type=="ISA"||this.type=="SHD"||this.type=="MANUALINPUT") {
             this.calc = searchdata.concat(searchdata2).concat(searchdata3).concat(searchdata4);
         } else if (this.type=="CFD") {
             this.calc = searchdata4;

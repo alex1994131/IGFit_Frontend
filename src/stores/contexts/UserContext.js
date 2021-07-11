@@ -1,59 +1,73 @@
-import React, { createContext, useEffect, useState } from 'react'
-import merge from 'lodash.merge'
-import { getSession, getUserAuth } from '../actions/userAction'
+import React, { createContext, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import merge from "lodash.merge";
+import { getUserAuth } from "../actions/userAction";
+import { useHistory, useLocation } from "react-router-dom";
 
-import { history } from '../../history'
-
-const UserContext = createContext(null)
+const UserContext = createContext({
+  username: "",
+  email: "",
+  currency: "",
+  portfolio: [],
+  updateUserDetails: (userDetails) => {},
+});
 
 const UserProvider = ({ children }) => {
+  const accessToken = useSelector((state) => state.auth.authorizationToken);
+  const history = useHistory();
+  const location = useLocation();
 
-    const updateUserDetails = ({ user }) => {
-        setUserDetails(prevState => {
-            const newState = { ...prevState }
-            return merge(newState, { user })
-        })
+  const updateUserDetails = ({ username, email, currency, portfolio }) => {
+    setUserDetails((prevState) => {
+      const newState = { ...prevState };
+      return merge(newState, {
+        username,
+        email,
+        currency,
+        portfolio,
+      });
+    });
+  };
+
+  const userState = {
+    username: "",
+    email: "",
+    currency: "",
+    portfolio: [],
+    updateUserDetails,
+  };
+
+  const [userDetails, setUserDetails] = useState(userState);
+
+  const load = async () => {
+    if (accessToken) {
+      if (location.pathname == "/signin" || location.pathname == "/singup") {
+        history.push("/");
+      }
+
+      let res = await getUserAuth(accessToken);
+      if (res.status) {
+        updateUserDetails({
+          username: res.user.username,
+          email: res.user.email,
+          currency: res.user.currency,
+          portfolio: res.user.portfolio,
+        });
+      }
+    } else {
+      if (location.pathname == "/signin" || location.pathname == "/singup") {
+        history.push("/signin");
+      }
     }
+  };
 
-    const userState = {
-        user: null,
-        updateUserDetails,
-    }
+  useEffect(() => {
+    load();
+  }, [accessToken]);
 
-    const [userDetails, setUserDetails] = useState(userState)
+  return (
+    <UserContext.Provider value={userDetails}>{children}</UserContext.Provider>
+  );
+};
 
-    const load = async () => {
-        const accessToken = getSession()
-
-        if (accessToken) {
-            if (history.location.pathname == "/signin" || history.location.pathname == "/singup") {
-                history.push("/")
-            }
-
-            let res = await getUserAuth(accessToken)
-            if (res.status) {
-
-                setUserDetails({
-                    user: res.user,
-                    updateUserDetails
-                })
-            }
-        } else {
-            if (history.location.pathname !== "/signin" || history.location.pathname !== "/singup") {
-                history.push("/signin")
-            }
-        }
-    }
-
-    useEffect(() => {
-        load()
-    })
-
-    return (
-        <UserContext.Provider value={userDetails}>
-            {children}
-        </UserContext.Provider>
-    )
-}
-
-export { UserProvider, UserContext }
+export { UserProvider, UserContext };
