@@ -1,83 +1,92 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Container, Divider } from 'semantic-ui-react';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Container, Divider } from "semantic-ui-react";
 
-import NewChart from "../chart/NewChart.js"
-import NewTable from "./NewTable.js"
+import NewChart from "../chart/NewChart.js";
+import NewTable from "./NewTable.js";
 
 import * as IG from "../../helpers/IGClient.js";
 //import { IGAccount } from "../../helpers/IGAccount.js";
 
-
 const App = (props) => {
-    //  const [data, setData] = useState();
-    // const [fetch, setFetch] = useState(0);
-    const [searchdata, setSearchData] = useState([]);
-    const cb = useCallback((data) => {
-        var data2 = data.map((element) => { var resp = element; resp.y = resp.y * (props.pnl ? 1 : -1); return resp; });
-        setSearchData(data2);
-    }, []);
-    // const [acc, setAcc] = useState({});
-    // const [calc, setCalc] = useState([]);
-
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         if (!fetch) {
-    //             IG.downloadactivity().then((igdata) => {
-    //                 var csvdata2 = igdata;
-    //                 var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", setData, setCalc);
-    //                 setAcc(acc2);
-    //             });
-    //             setFetch(1);
-    //         }
-    //     };
-    //     fetchData();
-    // });
-
-    //var data = props.data;
-    // var fetch = props.fetch;
-    //var calc = props.calc;
-    const [calc, setCalc] = useState();
-    const [data, setData] = useState();
-    var acc = props.acc;
-    var dataLoaded = props.dataLoaded;
-    // var data = [];
-
-    useEffect(() => {
-        if (dataLoaded && acc) {
-            setData(acc.getData().slice())
-
-            if (dataLoaded == 2) {
-                setCalc(acc.getCalc());
-            }
-        }
-    }, [props.acc, props.dataLoaded]);
-
-    const cols = useRef({
-        x: "date",
-        y: props.col ? props.col : "overall_unrealized_cost_base_ccy",
-        category: "base_cost",
-        show: ["date", props.col ? props.col : "overall_unrealized_cost_base_ccy"]
+  //  const [data, setData] = useState();
+  // const [fetch, setFetch] = useState(0);
+  const [searchdata, setSearchData] = useState([]);
+  const cb = useCallback((data) => {
+    var data2 = data.map((element) => {
+      var resp = element;
+      resp.y = resp.y * (props.pnl ? 1 : -1);
+      return resp;
     });
+    setSearchData(data2);
+  }, []);
+  // const [acc, setAcc] = useState({});
+  // const [calc, setCalc] = useState([]);
 
-    if (dataLoaded == 2) {
-        //var resp = [];
-        //if (searchdata.length > 0) {
-        var resp = //resp.concat(
-            // <Container fluid>
-            <div>
-                <NewChartmemo key="NewChart1" data={searchdata}
-                    calc={calc}
-                    type="line"
-                    title={<h3 style={{ margin: "0 0 10px 0" }}>Overview</h3>}
-                />
-                <Divider />
-                <NewTablememo key="NewTable1" set_search_data={cb}
-                    data={data}
-                    cols={cols.current}
-                /></div>
-        // </Container>
-        //);
-        /*   }
+  // useEffect(() => {
+  //     const fetchData = async () => {
+  //         if (!fetch) {
+  //             IG.downloadactivity().then((igdata) => {
+  //                 var csvdata2 = igdata;
+  //                 var acc2 = new IGAccount(csvdata2.ISA.trades, "ISA", setData, setCalc);
+  //                 setAcc(acc2);
+  //             });
+  //             setFetch(1);
+  //         }
+  //     };
+  //     fetchData();
+  // });
+
+  //var data = props.data;
+  // var fetch = props.fetch;
+  //var calc = props.calc;
+  const [calc, setCalc] = useState();
+  const [data, setData] = useState();
+  var acc = props.acc;
+  var dataLoaded = props.dataLoaded;
+  // var data = [];
+
+  useEffect(() => {
+    if (dataLoaded && acc && Array.isArray(acc.getData())) {
+      setData(acc.getData().slice());
+
+      if (dataLoaded == 2) {
+        setCalc(acc.getCalc());
+      }
+    }
+  }, [props.acc, props.dataLoaded]);
+
+  const cols = useRef({
+    x: "date",
+    y: props.col ? props.col : "overall_unrealized_cost_base_ccy",
+    category: "base_cost",
+    show: ["date", props.col ? props.col : "overall_unrealized_cost_base_ccy"],
+  });
+
+  if (dataLoaded == 2) {
+    //var resp = [];
+    //if (searchdata.length > 0) {
+    var resp = ( //resp.concat(
+      // <Container fluid>
+      <div>
+        <NewChartmemo
+          key="NewChart1"
+          data={searchdata}
+          calc={calc}
+          type="line"
+          title={<h3 style={{ margin: "0 0 10px 0" }}>Overview</h3>}
+        />
+        <Divider />
+        <NewTablememo
+          key="NewTable1"
+          set_search_data={cb}
+          data={data}
+          cols={cols.current}
+        />
+      </div>
+    );
+    // </Container>
+    //);
+    /*   }
           else {
               resp = resp.concat(
                   <Container fluid><NewTablememo key="NewTable1" set_search_data={cb}
@@ -85,11 +94,9 @@ const App = (props) => {
                       cols={cols.current}
                   /></Container>
               ); */
-        // }
-        return resp;
-    }
-    else
-        return <>Loading...</>;
+    // }
+    return resp;
+  } else return <>Loading...</>;
 };
 
 export default React.memo(App);
