@@ -102,21 +102,12 @@ const App = (props) => {
   });
 
   /*     useEffect(() => {
-<<<<<<< HEAD
             if (JSON.stringify(oldsort) != JSON.stringify(chartarr)) {
                 oldsort = chartarr;
                 charts.current = [];
                 setclicked(clicked+1);
             }
         }, [chartarr]) */
-=======
-			if (JSON.stringify(oldsort) != JSON.stringify(chartarr)) {
-				oldsort = chartarr;
-				charts.current = [];
-				setclicked(clicked+1);
-			}
-		}, [chartarr]) */
->>>>>>> alex
 
   if (dataLoaded == 2 && acc && chartarr && chartsData && annotationsData) {
     let maxy, miny, range;
@@ -132,10 +123,6 @@ const App = (props) => {
     // for (var key of Object.keys(chartsdata)) {\
     //let pos = 0;
     for (var key of chartarr) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> alex
       if (annotationsData[key])
         charts.current.push(
           <Grid.Column key={key + "column"}>
@@ -158,33 +145,6 @@ const App = (props) => {
             />
           </Grid.Column>
         );
-<<<<<<< HEAD
-=======
-      charts.current.push(
-        <Grid.Column key={key + "column"}>
-          <Newchartmemo
-            key={key + "price_chart"}
-            data={chartsData[key]}
-            annotations={annotationsData[key]}
-            type="line"
-            height={150}
-            yAxis={yAxis}
-            setcolor={
-              annotationsData[key][0].position.y > maxy - range
-                ? "green"
-                : annotationsData[key][0].position.y > maxy - range * 2
-                ? "blue"
-                : "red"
-            }
-            legend={false}
-            title={key}
-          />
-        </Grid.Column>
-      );
->>>>>>> codeStyle
-=======
->>>>>>> alex
-
       // cols++;
       // if(cols==6) {
       //     rowchart.push(<Grid.Row>{charts}</Grid.Row>);
