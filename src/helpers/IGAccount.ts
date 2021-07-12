@@ -756,7 +756,7 @@ export const IGAccount = class IGAccount {
         if(eod_currency_data) {
             for(let i=0; i<eod_currency_data.length; i++) {
                 let temp_date = eod_currency_data[i].date;
-                if(temp_date.toISOString().slice(0, 10) === date.toISOString().slice(0, 10)) {
+                if(temp_date.toLocaleDateString("en-CA") === date.toLocaleDateString("en-CA")) {
                     rate = eod_currency_data[i].adjClose
                     break;
                 }
