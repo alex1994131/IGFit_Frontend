@@ -176,9 +176,7 @@ const Transaction = (props) => {
 
   const onDateChange = (e, data) => {
     let transaction_date = new Date(data.value);
-    transaction_date.setUTCDate(transaction_date.getUTCDate() + 1);
     let time = transaction_date.toISOString();
-    console.log(time);
     setTransDate(time);
   };
 

@@ -135,66 +135,62 @@ const NewTable = (props) => {
     },
   };
 
-  let columns = [];
+  const columns = Object.keys(data[0]).map((element) => {
+    return { name: element, options: { display: false } };
+  });
   var columnorder = [];
-  if (data) {
-    columns = Object.keys(data[0]).map((element) => {
-      return { name: element, options: { display: false } };
-    });
-
-    //const show = ["date","overall_unrealized_cost_base_ccy"];
-    const show = cols?.show;
-    show?.forEach((element) => {
-      columnorder.push(Object.keys(data[0])?.indexOf(element));
-    });
-    columns.forEach((element) => {
-      if (show.indexOf(element.name) > -1) {
-        element.options.display = true;
-      }
-      //if (element.name == "date")
-      //    columnorder = [columns.indexOf(element), ...columnorder];
-      else {
-        columnorder.push(columns.indexOf(element));
-      }
-
-      //if (element.name == "amount")
-      if (typeof data[0][element.name] === "number") {
-        element.options.customBodyRenderLite = (dataIndex, rowIndex) =>
-          data[dataIndex][element.name].toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-          });
-        element.options.setCellProps = (value) => ({
-          style: { textAlign: "right" },
-        });
-        element.options.setCellHeaderProps = (value) => ({
-          className: classes.alignrightHeader,
-        });
-      }
-
-      if (typeof data[0][element.name] === "boolean") {
-        element.options.customBodyRenderLite = (dataIndex, rowIndex) =>
-          data[dataIndex][element.name] ? "true" : "false";
-      }
-
-      if (cols.custom && Object.keys(cols.custom).indexOf(element.name) > -1) {
-        element.options = { ...element.options, ...cols.custom[element.name] };
-        if ("customBodyRenderLite" in element.options) {
-          delete element.options.customBodyRenderLite;
-        }
-      }
-    });
-
-    options.columnOrder = columnorder;
-    if (props.responsive) {
-      options.responsive = props.responsive;
+  //const show = ["date","overall_unrealized_cost_base_ccy"];
+  const show = cols?.show;
+  show?.forEach((element) => {
+    columnorder.push(Object.keys(data[0])?.indexOf(element));
+  });
+  columns.forEach((element) => {
+    if (show.indexOf(element.name) > -1) {
+      element.options.display = true;
+    }
+    //if (element.name == "date")
+    //    columnorder = [columns.indexOf(element), ...columnorder];
+    else {
+      columnorder.push(columns.indexOf(element));
     }
 
-    if (columns.find((e) => e.name == "date")) {
-      options.sortOrder = {
-        name: "date",
-        direction: "desc",
-      };
+    //if (element.name == "amount")
+    if (typeof data[0][element.name] === "number") {
+      element.options.customBodyRenderLite = (dataIndex, rowIndex) =>
+        data[dataIndex][element.name].toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+        });
+      element.options.setCellProps = (value) => ({
+        style: { textAlign: "right" },
+      });
+      element.options.setCellHeaderProps = (value) => ({
+        className: classes.alignrightHeader,
+      });
     }
+
+    if (typeof data[0][element.name] === "boolean") {
+      element.options.customBodyRenderLite = (dataIndex, rowIndex) =>
+        data[dataIndex][element.name] ? "true" : "false";
+    }
+
+    if (cols.custom && Object.keys(cols.custom).indexOf(element.name) > -1) {
+      element.options = { ...element.options, ...cols.custom[element.name] };
+      if ("customBodyRenderLite" in element.options) {
+        delete element.options.customBodyRenderLite;
+      }
+    }
+  });
+
+  options.columnOrder = columnorder;
+  if (props.responsive) {
+    options.responsive = props.responsive;
+  }
+
+  if (columns.find((e) => e.name == "date")) {
+    options.sortOrder = {
+      name: "date",
+      direction: "desc",
+    };
   }
 
   return (

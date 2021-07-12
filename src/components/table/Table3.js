@@ -46,7 +46,7 @@ const App = (props) => {
   // var data = [];
 
   useEffect(() => {
-    if (dataLoaded && acc && Array.isArray(acc.getData())) {
+    if (dataLoaded && acc) {
       setData(acc.getData().slice());
 
       if (dataLoaded == 2) {
