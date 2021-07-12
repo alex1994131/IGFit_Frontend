@@ -314,7 +314,6 @@ export const IGAccount = class IGAccount {
                 // await local_currency.push(this.findCurrency(base_currency, transaction.currency))
                 await this.findCurrency(this.base_currency, transaction.currency)
             }
-
             var fx = this.getCurrencyRate(this.base_currency, transaction.currency, date)
             
             if(transaction.currency === "GBP" || transaction.currency === "GBX") {
