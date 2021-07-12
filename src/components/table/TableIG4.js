@@ -85,14 +85,14 @@ const App = (props) => {
   }, [activeIndex, props.dataLoaded, chartarr, isSort, first]);
 
   /*      useEffect(()=>{
-             if (isSort) {
-                 setChartArr(chartarr.slice().sort((a, b) => {
-                     let a_index = chartsData[a][chartsData[a].length - 1].y;
-                     let b_index = chartsData[b][chartsData[b].length - 1].y;
-                     return b_index - a_index;
-                 }));
-             }
-         },[isSort]); */
+			 if (isSort) {
+				 setChartArr(chartarr.slice().sort((a, b) => {
+					 let a_index = chartsData[a][chartsData[a].length - 1].y;
+					 let b_index = chartsData[b][chartsData[b].length - 1].y;
+					 return b_index - a_index;
+				 }));
+			 }
+		 },[isSort]); */
 
   const onButtonPress = useCallback(() => {
     sort(chartarr, chartsData, charts, setChartArr);
@@ -102,12 +102,21 @@ const App = (props) => {
   });
 
   /*     useEffect(() => {
+<<<<<<< HEAD
             if (JSON.stringify(oldsort) != JSON.stringify(chartarr)) {
                 oldsort = chartarr;
                 charts.current = [];
                 setclicked(clicked+1);
             }
         }, [chartarr]) */
+=======
+			if (JSON.stringify(oldsort) != JSON.stringify(chartarr)) {
+				oldsort = chartarr;
+				charts.current = [];
+				setclicked(clicked+1);
+			}
+		}, [chartarr]) */
+>>>>>>> alex
 
   if (dataLoaded == 2 && acc && chartarr && chartsData && annotationsData) {
     let maxy, miny, range;
@@ -124,6 +133,9 @@ const App = (props) => {
     //let pos = 0;
     for (var key of chartarr) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> alex
       if (annotationsData[key])
         charts.current.push(
           <Grid.Column key={key + "column"}>
@@ -146,6 +158,7 @@ const App = (props) => {
             />
           </Grid.Column>
         );
+<<<<<<< HEAD
 =======
       charts.current.push(
         <Grid.Column key={key + "column"}>
@@ -169,6 +182,8 @@ const App = (props) => {
         </Grid.Column>
       );
 >>>>>>> codeStyle
+=======
+>>>>>>> alex
 
       // cols++;
       // if(cols==6) {

@@ -101,7 +101,7 @@ const App = (props) => {
         setPriceIndex(price_index);
       }
     }
-  }, [props.dataLoaded, sortButton]);
+  }, [props.dataLoaded, props.acc, sortButton]);
 
   var resp = (
     <div /* style={{width:"90%", margin:"auto"}} */>
