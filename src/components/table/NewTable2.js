@@ -1,29 +1,28 @@
-import React from 'react'
+import React from "react";
 import MUIDataTable, { debounceSearchRender } from "mui-datatables";
 import { makeStyles } from "@material-ui/core/styles";
-import { reducearray } from '../../utils/utils';
-import { findmatchintable, findmatches3 } from '../../filtermatches';
-import GridTable from '@nadavshaar/react-grid-table';
+import { reducearray } from "../../utils/utils";
+import { findmatchintable, findmatches3 } from "../../filtermatches";
+import GridTable from "@nadavshaar/react-grid-table";
 
 const useStyles = makeStyles((theme) => ({
-    alignrightHeader: {
-        "& span": {
-            display: "flex",
-            justifyContent: "flex-end",
-        }
-    }
+  alignrightHeader: {
+    "& span": {
+      display: "flex",
+      justifyContent: "flex-end",
+    },
+  },
 }));
 
-const NewTable2 = props => {
+const NewTable2 = (props) => {
+  var data = props.data;
+  var setSearchData = props.set_search_data;
+  var cols = props.cols;
+  var setAccResult = props.set_acc_result;
 
-    var data = props.data;
-    var setSearchData = props.set_search_data;
-    var cols = props.cols;
-    var setAccResult = props.set_acc_result;
+  // const classes = useStyles();
 
-    // const classes = useStyles();
-
-    /* var options = {
+  /* var options = {
         filterType: 'checkbox',
         resizableColumns: true,
         searchOpen: "searchOpen" in props?props.searchOpen:true,
@@ -62,7 +61,7 @@ const NewTable2 = props => {
             console.log('ontablechange action ' + action + Date.now())
             //console.log(JSON.stringify(props));
 
-            if (action == 'search' || action == 'filterChange' || action == 'resetFilters' || action == 'propsUpdate' /* || redraw == 1 *//* ) {
+            if (action == 'search' || action == 'filterChange' || action == 'resetFilters' || action == 'propsUpdate' /* || redraw == 1 */ /* ) {
 console.log(action);
 if(setSearchData) {
 var search_data = tableState.displayData.map((element) => {
@@ -106,62 +105,64 @@ return findmatches3(searchQuery.trim(), rows, columns, "amount_in_base_currency"
 },
 }; */
 
-    //const columns = Object.keys(data[0]).map((element) => { return { name: element, options: { display: false } } });
-    const columns = Object.keys(data[0]).map((element) => { return { id: element, field: element, label: element, visible: false } });
-    var columnorder = [];
-    //const show = ["date","overall_unrealized_cost_base_ccy"];
-    const show = cols?.show;
-    show?.forEach((element) => { columnorder.push(Object.keys(data[0])?.indexOf(element)) });
-    columns.forEach((element) => {
-        if (show.indexOf(element.field) > -1) {
-            element.visible = true;
-        }
-        //if (element.name == "date")
-        //    columnorder = [columns.indexOf(element), ...columnorder];
-        else
-            columnorder.push(columns.indexOf(element));
+  //const columns = Object.keys(data[0]).map((element) => { return { name: element, options: { display: false } } });
+  const columns = Object.keys(data[0]).map((element) => {
+    return { id: element, field: element, label: element, visible: false };
+  });
+  var columnorder = [];
+  //const show = ["date","overall_unrealized_cost_base_ccy"];
+  const show = cols?.show;
+  show?.forEach((element) => {
+    columnorder.push(Object.keys(data[0])?.indexOf(element));
+  });
+  columns.forEach((element) => {
+    if (show.indexOf(element.field) > -1) {
+      element.visible = true;
+    }
+    //if (element.name == "date")
+    //    columnorder = [columns.indexOf(element), ...columnorder];
+    else columnorder.push(columns.indexOf(element));
 
-        //if (element.name == "amount")
-        // if (typeof (data[0][element.name]) === 'number') {
-        //     element.options.customBodyRenderLite = (dataIndex, rowIndex) => data[dataIndex][element.name].toLocaleString('en-US', { minimumFractionDigits: 2 });
-        //     element.options.setCellProps = value => ({ style: { textAlign: 'right' } });
-        //     element.options.setCellHeaderProps = value => ({ className: classes.alignrightHeader });
-        // }
-
-        // if (typeof (data[0][element.name]) === 'boolean')
-        //     element.options.customBodyRenderLite = (dataIndex, rowIndex) => data[dataIndex][element.name] ? "true" : "false";
-    });
-
-    // options.columnOrder = columnorder;
-    // if(props.responsive) {
-    //     options.responsive = props.responsive;
+    //if (element.name == "amount")
+    // if (typeof (data[0][element.name]) === 'number') {
+    //     element.options.customBodyRenderLite = (dataIndex, rowIndex) => data[dataIndex][element.name].toLocaleString('en-US', { minimumFractionDigits: 2 });
+    //     element.options.setCellProps = value => ({ style: { textAlign: 'right' } });
+    //     element.options.setCellHeaderProps = value => ({ className: classes.alignrightHeader });
     // }
 
-    // if(columns.find(e=>e.name=="date")) {
-    //     options.sortOrder = {
-    //         name: "date",
-    //         direction: "desc"
-    //     }
-    // }
+    // if (typeof (data[0][element.name]) === 'boolean')
+    //     element.options.customBodyRenderLite = (dataIndex, rowIndex) => data[dataIndex][element.name] ? "true" : "false";
+  });
 
-    return (
-        <div>
-            <GridTable
-                // title={"Employee List"}
-                // data={data}
-                // columns={columns}
-                // options={options}
-                // {...props.aProps}
-                // style={props.style}
-                columns={columns}
-                rows={data}
-                rowIdField={'date'}
-            />
-        </div>
-    )
-}
+  // options.columnOrder = columnorder;
+  // if(props.responsive) {
+  //     options.responsive = props.responsive;
+  // }
 
-export default NewTable2
+  // if(columns.find(e=>e.name=="date")) {
+  //     options.sortOrder = {
+  //         name: "date",
+  //         direction: "desc"
+  //     }
+  // }
+
+  return (
+    <div>
+      <GridTable
+        // title={"Employee List"}
+        // data={data}
+        // columns={columns}
+        // options={options}
+        // {...props.aProps}
+        // style={props.style}
+        columns={columns}
+        rows={data}
+        rowIdField={"date"}
+      />
+    </div>
+  );
+};
+
+export default NewTable2;
 
 var saved_query = { searchQuery: null, parsedQuery: null };
-

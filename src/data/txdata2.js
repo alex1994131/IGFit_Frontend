@@ -1,1 +1,2 @@
-export const txdata1 = [], txdata2 = [];
+export const txdata1 = [],
+  txdata2 = [];
