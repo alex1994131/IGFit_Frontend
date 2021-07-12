@@ -47,5 +47,6 @@ export const setSignIn = (token) => {
 export const setSignOut = () => {
     return dispatch => {
         dispatch({ type: actionTypes.LOGOUT_USER });
+        dispatch({ type: actionTypes.SET_TRANSACTION, transaction: null });
     }
 }
