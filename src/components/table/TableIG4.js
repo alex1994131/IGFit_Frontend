@@ -64,24 +64,32 @@ const App = (props) => {
       }
       setChartArr(keys);
     }
+
+    if (props.dataLoaded == 0) {
+      setAnnotations(null);
+      setChartArr(null);
+      setChartsData(null);
+    }
   }, [props.dataLoaded]);
 
   useEffect(() => {
     // let start_date = new Date();
     // start_date.setDate(start_date.getDate() - (max - activeIndex));
     // start_date.setHours(0, 0, 0, 0);
-    calcNewCharts(
-      start_date,
-      acc,
-      setChartsData,
-      setAnnotations,
-      isSort,
-      setChartArr,
-      chartarr,
-      [first, setFirst]
-    );
-    //setclicked(clicked+1);
-    charts.current = [];
+    if (props.dataLoaded == 2) {
+      calcNewCharts(
+        start_date,
+        acc,
+        setChartsData,
+        setAnnotations,
+        isSort,
+        setChartArr,
+        chartarr,
+        [first, setFirst]
+      );
+      //setclicked(clicked+1);
+      charts.current = [];
+    }
   }, [activeIndex, props.dataLoaded, chartarr, isSort, first]);
 
   /*      useEffect(()=>{

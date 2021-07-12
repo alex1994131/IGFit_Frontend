@@ -41,7 +41,7 @@ const UserProvider = ({ children }) => {
 
   const load = async () => {
     if (accessToken) {
-      if (location.pathname == "/signin" || location.pathname == "/singup") {
+      if (location.pathname == "/signin" || location.pathname == "/signup") {
         history.push("/");
       }
 
@@ -55,7 +55,7 @@ const UserProvider = ({ children }) => {
         });
       }
     } else {
-      if (location.pathname == "/signin" || location.pathname == "/singup") {
+      if (location.pathname == "/signin" || location.pathname == "/signup") {
         history.push("/signin");
       }
     }

@@ -65,11 +65,20 @@ const Dashboard = (props) => {
 
   const [priceData, setPriceData] = useState([]);
 
+  console.log("rendered" + dataLoaded);
+
+  useEffect(() => {
+    let d = history.location.search;
+    const current_portfolio = querystring.parse(d);
+    setPortfolio(current_portfolio);
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       let d = history.location.search;
       const current_portfolio = querystring.parse(d);
-      setPortfolio(current_portfolio);
+
+      const base_currency = current_user.currency;
       if (newApi == 0) {
         IG.downloadactivity(0, offlineMode).then((igdata) => {
           var csvdata2 = igdata;
@@ -90,7 +99,6 @@ const Dashboard = (props) => {
           //     var acc4 = acc2;
           // }
           setAcc(acc2);
-          // acc = acc2;
           // setAccCfd(acc3);
           // setAccShd(acc4);
           //setDataLoaded(1);
@@ -98,9 +106,14 @@ const Dashboard = (props) => {
       } else {
         IG.getTransactions(current_portfolio.id).then((transactions) => {
           if (transactions.status) {
+            console.log("11111111111111");
             if (transactions.data.length > 0) {
               setTransaction(transactions.data);
               dispatch(setTransactionData(transactions.data));
+              // if (base_currency === '') {
+              //     var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
+              //     setAcc(igAccount);
+              // }
             } else {
               setDataLoaded(1);
             }
@@ -124,60 +137,33 @@ const Dashboard = (props) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     let d = history.location.search;
-  //     const current_portfolio = querystring.parse(d);
-  //     setPortfolio(current_portfolio);
-
-  //     IG.getTransactions(current_portfolio.id).then((transactions) => {
-  //       if (transactions.status) {
-  //         if (transactions.data.length > 0) {
-  //           setTransaction(transactions.data);
-  //           dispatch(setTransactionData(transactions.data));
-  //         } else {
-  //           setDataLoaded(1);
-  //         }
-  //       } else {
-  //         history.push("/signin");
-  //       }
-  //     });
-
-  //     Pocketsmith.fetchAllTransactions(offlineMode).then((tx) => {
-  //       var data = tx.map((element) => JSON.flatten(element));
-  //       setDatatx(data);
-  //       setPx(new Pocketsmith.Px(data));
-  //     });
-
-  //     setFetch(1);
-  //   };
-
-  //   if (!fetch) {
-  //     fetchData();
-  //   }
-  // }, []);
-
   useEffect(() => {
-    const setData = async () => {
+    console.log("222222222222222");
+
+    const fetchData = async () => {
       if (
+        transactions.length &&
         transactionData &&
         transactionData.length !== 0 &&
         current_user.currency !== ""
       ) {
-        setTransaction(transactionData);
+        console.log("new ig");
+        console.log(transactionData);
+        console.log(current_user.currency);
         const base_currency = current_user.currency;
-        var igAccount2 = await new IGAccount(
+        setDataLoaded(0);
+        setAcc(null);
+        var igAccount2 = new IGAccount(
           transactionData,
           "MANUALINPUT",
           offlineMode,
           setDataLoaded,
           base_currency
         );
-
         setAcc(igAccount2);
       }
     };
-    setData();
+    fetchData();
   }, [transactionData, current_user.currency]);
 
   const panes = [
