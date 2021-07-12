@@ -64,6 +64,8 @@ const Dashboard = (props) => {
 
     const [priceData, setPriceData] = useState([]);
 
+    console.log("rendered"+dataLoaded);
+
     useEffect(() => {
         let d = history.location.search
         const current_portfolio = querystring.parse(d)
@@ -135,10 +137,13 @@ const Dashboard = (props) => {
         console.log('222222222222222')
 
         const fetchData = async () => {
-            if (transactionData && transactionData.length !== 0 && current_user.currency !== '') {
+            if (transactions.length && transactionData && transactionData.length !== 0 && current_user.currency !== '') {
+                console.log("new ig");
                 console.log(transactionData)
                 console.log(current_user.currency)
                 const base_currency = current_user.currency
+                setDataLoaded(0);
+                setAcc(null);
                 var igAccount2 = new IGAccount(transactionData, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
                 setAcc(igAccount2);
             };
