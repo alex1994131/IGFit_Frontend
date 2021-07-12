@@ -45,7 +45,6 @@ const Dashboard = (props) => {
   );
 
   const [portfolio, setPortfolio] = useState({});
-  const [transactions, setTransaction] = useState([]);
 
   // const [data, setData] = useState([]);
   const [datatx, setDatatx] = useState([]);
@@ -108,7 +107,6 @@ const Dashboard = (props) => {
           if (transactions.status) {
             console.log("11111111111111");
             if (transactions.data.length > 0) {
-              setTransaction(transactions.data);
               dispatch(setTransactionData(transactions.data));
               // if (base_currency === '') {
               //     var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
@@ -142,7 +140,6 @@ const Dashboard = (props) => {
 
     const fetchData = async () => {
       if (
-        transactions.length &&
         transactionData &&
         transactionData.length !== 0 &&
         current_user.currency !== ""
@@ -172,7 +169,7 @@ const Dashboard = (props) => {
       pane: {
         content: (
           <Transaction
-            transactions={transactions}
+            transactions={transactionData}
             portfolio={portfolio.id}
             dataLoaded={dataLoaded}
           />
