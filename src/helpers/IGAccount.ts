@@ -699,8 +699,8 @@ export const IGAccount = class IGAccount {
     async getCurrency(name, base, current, ticker, from, to) {
         var price;
         if (!this.offlineMode) {
-            from = from.toISOString();
-            to = to.toISOString();
+            from = from.toLocaleDateString("en-CA");
+            to = to.toLocaleDateString("en-CA");
             
             prices[name] = [];
             try {
