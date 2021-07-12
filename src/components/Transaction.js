@@ -25,8 +25,7 @@ const Transaction = (props) => {
     const history = useHistory();
     const dispatch = useDispatch()
     const accessToken = useSelector((state) => state.auth.authorizationToken)
-    const transactionData = useSelector((state) => state.transaction.transactionData);
-
+    
     const [transaction, setTransaction] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(props.dataLoaded);
     const [portfolio, setPortfolio] = useState(props.portfolio);
@@ -119,10 +118,6 @@ const Transaction = (props) => {
         if (res.status) {
             let data = res.data;
             dispatch(setTransactionData(data))
-            data.map((d, idx) => {
-                d.no = idx;
-            })
-            setTransaction(data)
         }
         else {
             alert(res.data);
@@ -171,10 +166,6 @@ const Transaction = (props) => {
         if (res.status) {
             let data = res.data;
             dispatch(setTransactionData(data))
-            data.map((d, idx) => {
-                d.no = idx;
-            })
-            setTransaction(data)
         }
         else {
             alert(res.data);
@@ -243,7 +234,7 @@ const Transaction = (props) => {
             })
             setTransaction(data);
         }
-    }, [props.dataLoaded]);
+    }, [props.dataLoaded, props.transaction]);
 
     useEffect(() => {
         setPortfolio(props.portfolio)

@@ -44,8 +44,7 @@ const Dashboard = (props) => {
     const transactionData = useSelector((state) => state.transaction.transactionData);
 
     const [portfolio, setPortfolio] = useState({})
-    const [transactions, setTransaction] = useState([]);
-
+    
     // const [data, setData] = useState([]);
     const [datatx, setDatatx] = useState([]);
     const [Px, setPx] = useState();
@@ -102,7 +101,6 @@ const Dashboard = (props) => {
                     if (transactions.status) {
                         console.log('11111111111111')
                         if (transactions.data.length > 0) {
-                            setTransaction(transactions.data)
                             dispatch(setTransactionData(transactions.data))
                             // if (base_currency === '') {
                             //     var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
@@ -137,7 +135,7 @@ const Dashboard = (props) => {
         console.log('222222222222222')
 
         const fetchData = async () => {
-            if (transactions.length && transactionData && transactionData.length !== 0 && current_user.currency !== '') {
+            if (transactionData && transactionData.length !== 0 && current_user.currency !== '') {
                 console.log("new ig");
                 console.log(transactionData)
                 console.log(current_user.currency)
@@ -155,7 +153,7 @@ const Dashboard = (props) => {
         {
             menuItem: 'Transaction',
             pane: {
-                content: (<Transaction transactions={transactions} portfolio={portfolio.id} dataLoaded={dataLoaded} />),
+                content: (<Transaction transactions={transactionData} portfolio={portfolio.id} dataLoaded={dataLoaded} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Transaction'
