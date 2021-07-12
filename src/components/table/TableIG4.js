@@ -64,35 +64,43 @@ const App = (props) => {
       }
       setChartArr(keys);
     }
+
+    if (props.dataLoaded == 0) {
+      setAnnotations(null);
+      setChartArr(null);
+      setChartsData(null);
+    }
   }, [props.dataLoaded]);
 
   useEffect(() => {
     // let start_date = new Date();
     // start_date.setDate(start_date.getDate() - (max - activeIndex));
     // start_date.setHours(0, 0, 0, 0);
-    calcNewCharts(
-      start_date,
-      acc,
-      setChartsData,
-      setAnnotations,
-      isSort,
-      setChartArr,
-      chartarr,
-      [first, setFirst]
-    );
-    //setclicked(clicked+1);
-    charts.current = [];
+    if (props.dataLoaded == 2) {
+      calcNewCharts(
+        start_date,
+        acc,
+        setChartsData,
+        setAnnotations,
+        isSort,
+        setChartArr,
+        chartarr,
+        [first, setFirst]
+      );
+      //setclicked(clicked+1);
+      charts.current = [];
+    }
   }, [activeIndex, props.dataLoaded, chartarr, isSort, first]);
 
   /*      useEffect(()=>{
-			 if (isSort) {
-				 setChartArr(chartarr.slice().sort((a, b) => {
-					 let a_index = chartsData[a][chartsData[a].length - 1].y;
-					 let b_index = chartsData[b][chartsData[b].length - 1].y;
-					 return b_index - a_index;
-				 }));
-			 }
-		 },[isSort]); */
+             if (isSort) {
+                 setChartArr(chartarr.slice().sort((a, b) => {
+                     let a_index = chartsData[a][chartsData[a].length - 1].y;
+                     let b_index = chartsData[b][chartsData[b].length - 1].y;
+                     return b_index - a_index;
+                 }));
+             }
+         },[isSort]); */
 
   const onButtonPress = useCallback(() => {
     sort(chartarr, chartsData, charts, setChartArr);
@@ -123,28 +131,28 @@ const App = (props) => {
     // for (var key of Object.keys(chartsdata)) {\
     //let pos = 0;
     for (var key of chartarr) {
-      if (annotationsData[key])
-        charts.current.push(
-          <Grid.Column key={key + "column"}>
-            <Newchartmemo
-              key={key + "price_chart"}
-              data={chartsData[key]}
-              annotations={annotationsData[key]}
-              type="line"
-              height={150}
-              yAxis={yAxis}
-              setcolor={
-                annotationsData[key][0].position.y > maxy - range
-                  ? "green"
-                  : annotationsData[key][0].position.y > maxy - range * 2
-                  ? "blue"
-                  : "red"
-              }
-              legend={false}
-              title={key}
-            />
-          </Grid.Column>
-        );
+      charts.current.push(
+        <Grid.Column key={key + "column"}>
+          <Newchartmemo
+            key={key + "price_chart"}
+            data={chartsData[key]}
+            annotations={annotationsData[key]}
+            type="line"
+            height={150}
+            yAxis={yAxis}
+            setcolor={
+              annotationsData[key][0].position.y > maxy - range
+                ? "green"
+                : annotationsData[key][0].position.y > maxy - range * 2
+                ? "blue"
+                : "red"
+            }
+            legend={false}
+            title={key}
+          />
+        </Grid.Column>
+      );
+
       // cols++;
       // if(cols==6) {
       //     rowchart.push(<Grid.Row>{charts}</Grid.Row>);
