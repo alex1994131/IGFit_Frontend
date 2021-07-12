@@ -52,8 +52,8 @@ const Setting = (props) => {
         },
         {
             key: 6,
-            text: 'RMB',
-            value: 'RMB',
+            text: 'CNY',
+            value: 'CNY',
         },
         {
             key: 7,
