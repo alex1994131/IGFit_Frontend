@@ -1156,6 +1156,7 @@ export const IGAccount = class IGAccount {
         this.chartdata2 = {};
 
         console.log('Position ---------- ', this.positions)
+        console.log(this.prices_global)
 
         for (let [key, value] of Object.entries(this.positions)) {
             if (this.positions[key].ticker != "[TICKER]" && this.prices_global[key]) {
