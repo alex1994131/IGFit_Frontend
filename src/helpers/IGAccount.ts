@@ -472,6 +472,7 @@ export const IGAccount = class IGAccount {
             this.data = this.positionsBetweenDate().then((resp)=>{
                 this.data=resp;
                 this.setDataLoaded(1);
+                console.log("set data loaded 1")
                 return resp;
             });
         }))
@@ -1163,6 +1164,7 @@ export const IGAccount = class IGAccount {
                 var result = this.getPositionPrices(key);
                 this.chartdata = this.chartdata.concat(result);
                 this.chartdata2[key] = result;
+                console.log("chartdata2");
             }
         }
 

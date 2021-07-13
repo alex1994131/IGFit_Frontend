@@ -31,7 +31,8 @@ import TablePxAcc from "../components/table/TablePxAcc";
 import TablePx4 from "../components/table/TablePx4"
 import TableIG31 from "../components/table/TableIG3_1.tsx"
 
-import { setTransactionData } from '../stores/actions/transactionAction';
+import * as actionTypes from '../stores/actions/actionTypes'
+import { setTransactionData, setTxData } from '../stores/actions/transactionAction';
 
 const offlineMode = 0;
 const newApi = 1;
@@ -63,7 +64,7 @@ const Dashboard = (props) => {
 
     const [priceData, setPriceData] = useState([]);
 
-    console.log("rendered"+dataLoaded);
+    console.log("rendered"+dataLoaded+"acc"+acc);
 
     useEffect(() => {
         let d = history.location.search
@@ -101,13 +102,15 @@ const Dashboard = (props) => {
                     if (transactions.status) {
                         console.log('11111111111111')
                         if (transactions.data.length > 0) {
-                            dispatch(setTransactionData(transactions.data))
+                            //dispatch(setTransactionData(transactions.data))
+                            dispatch({ type: actionTypes.SET_TRANSACTION, transaction: transactions.data });
                             // if (base_currency === '') {
                             //     var igAccount = new IGAccount(transactions.data, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
                             //     setAcc(igAccount);
                             // }
                         }
                         else {
+                            console.log("set data loaded")
                             setDataLoaded(1)
                         }
                     }
@@ -135,13 +138,13 @@ const Dashboard = (props) => {
         console.log('222222222222222')
 
         const fetchData = async () => {
-            if (transactionData && transactionData.length !== 0 && current_user.currency !== '') {
+            if (fetch && transactionData && transactionData.length !== 0 && current_user.currency !== '') {
                 console.log("new ig");
                 console.log(transactionData)
                 console.log(current_user.currency)
                 const base_currency = current_user.currency
-                setDataLoaded(0);
                 setAcc(null);
+                setDataLoaded(0);
                 var igAccount2 = new IGAccount(transactionData, "MANUALINPUT", offlineMode, setDataLoaded, base_currency);
                 setAcc(igAccount2);
             };

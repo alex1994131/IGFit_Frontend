@@ -14,10 +14,18 @@ const App = (props) => {
     // var calc = props.calc;
     var acc = props.acc;
     var dataLoaded = props.dataLoaded;
-    var data;
+    const [data, setData] = useState();
 
-    if (dataLoaded == 2 && acc) {
-        data = acc.chartdata2;
+    useEffect(()=>{
+        if (props.dataLoaded == 2) {
+            setData(props.acc.chartdata2);
+        } else if(props.dataLoaded == 0) {
+            setData(null);
+        }
+    },[props.dataLoaded, props.acc])
+
+    if (dataLoaded == 2 && acc && data) {
+        //data = acc.chartdata2;
         var charts = []
 
         for (var key of Object.keys(data)) {
