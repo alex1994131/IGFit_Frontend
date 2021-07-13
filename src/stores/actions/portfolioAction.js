@@ -15,8 +15,8 @@ export const newPortfolio = async (name, token) => {
     return res.data
 }
 
-// export const setSignIn = (token) => {
-//     return dispatch => {
-//         dispatch({ type: actionTypes.LOGIN_SUCCESSFUL, authorizationToken: token });
-//     }
-// }
+export const getPortfolioOne = async (id, token) => {
+    axios_config.headers.Authorization = 'Bearer ' + token;
+    const res = await axios.create(axios_config).post(`/get_portfolioOne`, { id: id })
+    return res.data
+}

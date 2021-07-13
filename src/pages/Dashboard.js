@@ -16,6 +16,7 @@ import * as Pocketsmith from "../helpers/Pocketsmith.js"
 import "../helpers/utils.js"
 
 import Transaction from '../components/Transaction';
+import Transaction2 from '../components/Transaction2';
 import Setting from '../components/Setting';
 import Table3 from "../components/table/Table3";
 import Table4 from "../components/table/Table4";
@@ -32,7 +33,7 @@ import TablePx4 from "../components/table/TablePx4"
 import TableIG31 from "../components/table/TableIG3_1.tsx"
 
 import * as actionTypes from '../stores/actions/actionTypes'
-import { setTransactionData, setTxData } from '../stores/actions/transactionAction';
+import { getPortfolioOne } from '../stores/actions/portfolioAction';
 
 const offlineMode = 0;
 const newApi = 1;
@@ -43,6 +44,7 @@ const Dashboard = (props) => {
     const dispatch = useDispatch()
     const current_user = useContext(UserContext);
     const transactionData = useSelector((state) => state.transaction.transactionData);
+    const accessToken = useSelector((state) => state.auth.authorizationToken)
 
     const [portfolio, setPortfolio] = useState({})
     
@@ -62,21 +64,25 @@ const Dashboard = (props) => {
     const [dataLoadedCfd, setDataLoadedCfd] = useState(0);
     const [dataLoadedShd, setDataLoadedShd] = useState(0);
 
-    const [priceData, setPriceData] = useState([]);
-
-    console.log("rendered"+dataLoaded+"acc"+acc);
-
+    let d = history.location.search
+    const portfolio_id = querystring.parse(d)
+            
     useEffect(() => {
-        let d = history.location.search
-        const current_portfolio = querystring.parse(d)
-        setPortfolio(current_portfolio)
+        const fetch = async() => {
+            const res = await getPortfolioOne(portfolio_id.id, accessToken);
+            if(res.status) {
+                setPortfolio(res.data)
+            }
+            else {
+                alert(res.data)
+            }
+        }
+
+        fetch()
     }, [])
 
     useEffect(() => {
         const fetchData = async () => {
-            let d = history.location.search
-            const current_portfolio = querystring.parse(d)
-
             const base_currency = current_user.currency
             if (newApi == 0) {
                 IG.downloadactivity(0, offlineMode).then((igdata) => {
@@ -98,9 +104,8 @@ const Dashboard = (props) => {
                 });
             }
             else {
-                IG.getTransactions(current_portfolio.id).then((transactions) => {
+                IG.getTransactions(portfolio_id.id).then((transactions) => {
                     if (transactions.status) {
-                        console.log('11111111111111')
                         if (transactions.data.length > 0) {
                             //dispatch(setTransactionData(transactions.data))
                             dispatch({ type: actionTypes.SET_TRANSACTION, transaction: transactions.data });
@@ -110,7 +115,6 @@ const Dashboard = (props) => {
                             // }
                         }
                         else {
-                            console.log("set data loaded")
                             setDataLoaded(1)
                         }
                     }
@@ -120,7 +124,7 @@ const Dashboard = (props) => {
                 });
             }
 
-            Pocketsmith.fetchAllTransactions(offlineMode).then((tx) => {
+            Pocketsmith.fetchAllTransactions(1).then((tx) => {
                 var data = tx.map((element) => JSON.flatten(element));
                 setDatatx(data);
                 setPx(new Pocketsmith.Px(data));
@@ -135,13 +139,8 @@ const Dashboard = (props) => {
     }, []);
 
     useEffect(() => {
-        console.log('222222222222222')
-
         const fetchData = async () => {
             if (fetch && transactionData && transactionData.length !== 0 && current_user.currency !== '') {
-                console.log("new ig");
-                console.log(transactionData)
-                console.log(current_user.currency)
                 const base_currency = current_user.currency
                 setAcc(null);
                 setDataLoaded(0);
@@ -156,10 +155,19 @@ const Dashboard = (props) => {
         {
             menuItem: 'Transaction',
             pane: {
-                content: (<Transaction transactions={transactionData} portfolio={portfolio.id} dataLoaded={dataLoaded} />),
+                content: (<Transaction transactions={transactionData} portfolio={portfolio} dataLoaded={dataLoaded} />),
                 style: { marginTop: 0, marginBottom: 0 },
                 attached: false,
                 key: 'Transaction'
+            }
+        },
+        {
+            menuItem: 'Transaction2',
+            pane: {
+                content: (<Transaction2 transactions={transactionData} portfolio={portfolio} dataLoaded={dataLoaded} />),
+                style: { marginTop: 0, marginBottom: 0 },
+                attached: false,
+                key: 'Transaction2'
             }
         },
         {
@@ -314,7 +322,7 @@ const Dashboard = (props) => {
         //         attached: false,
         //         key: 'Tab 12'
         //     }
-        // }
+        // },
         {
             menuItem: 'Settings',
             pane: {

@@ -343,7 +343,6 @@ export const IGAccount = class IGAccount {
             tx.push(tx2);
         }
 
-        console.log('Currency Loaded ------------- ')
         // return Promise.all(local_currency).then(() => {return(tx)});
         return tx
     }
@@ -455,8 +454,6 @@ export const IGAccount = class IGAccount {
         this.end_date = new Date();
         this.end_date.setHours(0, 0, 0, 0);
 
-        console.log('loadManualInput -------- ', csvData)
-
         this.load_currency.push(this.parseManualtx(tx).then((res) => {
             tx = res
             for (var i = 0; i < tx.length; i++) {
@@ -466,8 +463,6 @@ export const IGAccount = class IGAccount {
 
             this.transactions = tx;
 
-            console.log('TX Loaded --------------', this.transactions)
-            
             this.data = this.positionsBetweenDate().then((resp)=>{
                 this.data=resp;
                 this.setDataLoaded(1);
@@ -1154,9 +1149,6 @@ export const IGAccount = class IGAccount {
 
         this.chartdata = [];
         this.chartdata2 = {};
-
-        console.log('Position ---------- ', this.positions)
-        console.log(this.prices_global)
 
         for (let [key, value] of Object.entries(this.positions)) {
             if (this.positions[key].ticker != "[TICKER]" && this.prices_global[key]) {

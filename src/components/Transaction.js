@@ -121,7 +121,7 @@ const Transaction = (props) => {
         }
 
         const transaction_data = {
-            portfolio: portfolio,
+            portfolio: portfolio._id,
             ticker: transticker,
             direction: transdirection,
             date: transdate,
@@ -178,7 +178,7 @@ const Transaction = (props) => {
     }
 
     const onDeleteTransaction = async (id) => {
-        const res = await deleteTransaction(id, portfolio, accessToken);
+        const res = await deleteTransaction(id, portfolio._id, accessToken);
         if (res.status) {
             let data = res.data;
             dispatch(setTransactionData(data))
@@ -250,10 +250,12 @@ const Transaction = (props) => {
             })
             setTransaction(data);
         }
-    }, [props.dataLoaded, props.transaction]);
+    }, [props.dataLoaded, props.transactions]);
 
     useEffect(() => {
-        setPortfolio(props.portfolio)
+        if(props.portfolio) {
+            setPortfolio(props.portfolio)
+        }
     }, [props.portfolio]);
 
     return (
