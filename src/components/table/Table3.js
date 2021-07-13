@@ -62,7 +62,7 @@ const App = (props) => {
     if (dataLoaded == 2) {
         //var resp = [];
         //if (searchdata.length > 0) {
-        var resp = //resp.concat(
+        var resp = (//resp.concat(
             // <Container fluid>
             <div>
                 <NewChartmemo key="NewChart1" data={searchdata}
@@ -74,7 +74,8 @@ const App = (props) => {
                 <NewTablememo key="NewTable1" set_search_data={cb}
                     data={data}
                     cols={cols.current}
-                /></div>
+                />
+            </div>)
         // </Container>
         //);
         /*   }

@@ -83,7 +83,7 @@ const App = props => {
     
     useEffect(() => {
         setDataLoaded(props.dataLoaded)
-        if (props.transactions.length) {
+        if (props.transactions) {
             var data = props.transactions.map((element, idx) => { 
                 element.id = idx
                 return JSON.flatten(element)

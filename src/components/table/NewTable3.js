@@ -246,8 +246,8 @@ const App = props => {
     const row = props.rowRender;
 
     return (
-        <div>
-            <div>
+        <>
+            <div style={{}}>
                 <input
                     type='text'
                     name='Search'
@@ -294,7 +294,7 @@ const App = props => {
                 onEndReached={onEndReached}
                 onEndReachedThreshold={10}
             />
-        </div>
+        </>
     );
 }
 
