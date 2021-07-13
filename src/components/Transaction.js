@@ -100,8 +100,24 @@ const Transaction = (props) => {
             return setError('Please enter Quantity')
         }
 
+        if(transdirection === 'BUY') {
+            if(transquantity < 0) { 
+                return setError('Please enter correct quantity. You have to enter positive quantity')
+            }
+        }
+
+        if(transdirection === 'SELL') {
+            if(transquantity > 0) { 
+                return setError('Please enter correct quantity. You have to enter minus quantity')
+            }
+        }
+
         if (!transcommission) {
             return setError('Please enter Commission')
+        }
+
+        if(transcommission > 0) {
+            return setError('Please enter minus Commission')
         }
 
         const transaction_data = {
@@ -324,10 +340,10 @@ const Transaction = (props) => {
                                                                 <Table.Cell textAlign='left'>{item.ticker}</Table.Cell>
                                                                 <Table.Cell textAlign='center'>{item.direction}</Table.Cell>
                                                                 <Table.Cell textAlign='center'>{item.currency}</Table.Cell>
-                                                                <Table.Cell textAlign='right'>{(Math.round(item.price * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
-                                                                <Table.Cell textAlign='right'>{(Math.round(item.quantity * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
-                                                                <Table.Cell textAlign='right'>{(Math.round(item.commission * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
-                                                                <Table.Cell textAlign='right'>{(Math.round((Number(item.price * item.quantity) + Number(item.commission)) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(Number(item.price) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(Number(item.quantity) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(Number(item.commission) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
+                                                                <Table.Cell textAlign='right'>{(Math.round(Number(item.total) * 100) / 100).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Cell>
                                                                 <Table.Cell textAlign='center'>
                                                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                                         <Button onClick={(e) => { onDeleteTransaction(item._id) }}>Delete</Button>
