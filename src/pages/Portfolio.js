@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router";
 import { useSelector } from "react-redux"
@@ -8,11 +8,13 @@ import 'semantic-ui-less/semantic.less'
 
 import Pagination from '../components/Pagination'
 import { getPortfolio, newPortfolio } from '../stores/actions/portfolioAction';
+import { UserContext } from "../stores/contexts/UserContext";
 
 const Portfolio = (props) => {
 
     const history = useHistory();
     const accessToken = useSelector((state) => state.auth.authorizationToken)
+    const current_user = useContext(UserContext);
 
     const [error, setError] = useState("")
     const [portfolio, setPortfolio] = useState([]);
@@ -25,6 +27,18 @@ const Portfolio = (props) => {
     const pageItemCount = 10
     const [currentPage, setCurrentPage] = useState(1);
     const [currentData, setCurrentData] = useState([]);
+
+    const getCurrencySymbol = (locale, currency) => {
+        return (0).toLocaleString(
+            locale,
+            {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }
+        ).replace(/\d/g, '').trim()
+    }
 
     const prepareCurrentData = (data) => {
         setCurrentData(data.slice(
@@ -165,8 +179,24 @@ const Portfolio = (props) => {
                                                 return <Table.Row key={index}>
                                                     <Table.Cell>{item.no + 1}</Table.Cell>
                                                     <Table.Cell>{item.name}</Table.Cell>
-                                                    <Table.Cell>${item.value}</Table.Cell>
-                                                    <Table.Cell>${item.profit}</Table.Cell>
+                                                    <Table.Cell>
+                                                        {
+                                                            current_user.hasOwnProperty('currency') ? (
+                                                                Number(item.value).toLocaleString(undefined, { style: 'currency', currency: current_user['currency'], minimumFractionDigits: 2 })
+                                                            ) : (
+                                                                ""
+                                                            )
+                                                        }
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {
+                                                            current_user.hasOwnProperty('currency') ? (
+                                                                Number(item.profit).toLocaleString(undefined, { style: 'currency', currency: current_user['currency'], minimumFractionDigits: 2 })
+                                                            ) : (
+                                                                ""
+                                                            )
+                                                        }
+                                                    </Table.Cell>
                                                     <Table.Cell>{new Date(item.created_at).toDateString()}</Table.Cell>
                                                     <Table.Cell textAlign='center'>
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
