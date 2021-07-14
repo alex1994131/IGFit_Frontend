@@ -34,6 +34,8 @@ import TableIG31 from "../components/table/TableIG3_1.tsx"
 
 import * as actionTypes from '../stores/actions/actionTypes'
 import { getPortfolioOne } from '../stores/actions/portfolioAction';
+import { calcPortfolio } from '../stores/actions/transactionAction';
+import { RestaurantMenu } from '@material-ui/icons';
 
 const offlineMode = 0;
 const newApi = 1;
@@ -47,7 +49,7 @@ const Dashboard = (props) => {
     const accessToken = useSelector((state) => state.auth.authorizationToken)
 
     const [portfolio, setPortfolio] = useState({})
-    
+
     // const [data, setData] = useState([]);
     const [datatx, setDatatx] = useState([]);
     const [Px, setPx] = useState();
@@ -66,11 +68,11 @@ const Dashboard = (props) => {
 
     let d = history.location.search
     const portfolio_id = querystring.parse(d)
-            
+
     useEffect(() => {
-        const fetch = async() => {
+        const fetch = async () => {
             const res = await getPortfolioOne(portfolio_id.id, accessToken);
-            if(res.status) {
+            if (res.status) {
                 setPortfolio(res.data)
             }
             else {
@@ -139,6 +141,18 @@ const Dashboard = (props) => {
     }, []);
 
     useEffect(() => {
+        const calcData = async () => {
+            if (fetch && transactionData && transactionData.length !== 0 && current_user.currency !== '' && portfolio.hasOwnProperty('_id')) {
+                const res = await calcPortfolio(portfolio._id, accessToken)
+                if (res.status) {
+                    setPortfolio(res.data)
+                }
+                else {
+                    alert('failure')
+                }
+            }
+        }
+
         const fetchData = async () => {
             if (fetch && transactionData && transactionData.length !== 0 && current_user.currency !== '') {
                 const base_currency = current_user.currency
@@ -148,7 +162,9 @@ const Dashboard = (props) => {
                 setAcc(igAccount2);
             };
         };
+
         fetchData()
+        calcData()
     }, [transactionData, current_user.currency]);
 
     const panes = [

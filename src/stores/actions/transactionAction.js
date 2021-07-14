@@ -42,6 +42,12 @@ export const getCurrency = async (token, data) => {
     return res.data
 }
 
+export const calcPortfolio = async (portfolio_id, token) => {
+    axios_config.headers.Authorization = 'Bearer ' + token;
+    const res = await axios.create(axios_config).post(`/calc_portfolio`, { portfolio_id: portfolio_id })
+    return res.data
+}
+
 export const setTransactionData = (transaction) => {
     return dispatch => {
         dispatch({ type: actionTypes.SET_TRANSACTION, transaction: transaction });

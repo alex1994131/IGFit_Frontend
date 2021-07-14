@@ -25,7 +25,7 @@ const Transaction = (props) => {
     const history = useHistory();
     const dispatch = useDispatch()
     const accessToken = useSelector((state) => state.auth.authorizationToken)
-    
+
     const [transaction, setTransaction] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(props.dataLoaded);
     const [portfolio, setPortfolio] = useState(props.portfolio);
@@ -76,6 +76,8 @@ const Transaction = (props) => {
     );
 
     const onAddTransaction = async (e) => {
+        console.log(portfolio)
+
         if (!transticker) {
             return setError('Please enter Name/Ticker/Currency')
         }
@@ -100,14 +102,14 @@ const Transaction = (props) => {
             return setError('Please enter Quantity')
         }
 
-        if(transdirection === 'BUY') {
-            if(transquantity < 0) { 
+        if (transdirection === 'BUY') {
+            if (transquantity < 0) {
                 return setError('Please enter correct quantity. You have to enter positive quantity')
             }
         }
 
-        if(transdirection === 'SELL') {
-            if(transquantity > 0) { 
+        if (transdirection === 'SELL') {
+            if (transquantity > 0) {
                 return setError('Please enter correct quantity. You have to enter minus quantity')
             }
         }
@@ -116,7 +118,7 @@ const Transaction = (props) => {
             return setError('Please enter Commission')
         }
 
-        if(transcommission > 0) {
+        if (transcommission > 0) {
             return setError('Please enter minus Commission')
         }
 
@@ -253,7 +255,7 @@ const Transaction = (props) => {
     }, [props.dataLoaded, props.transactions]);
 
     useEffect(() => {
-        if(props.portfolio) {
+        if (props.portfolio) {
             setPortfolio(props.portfolio)
         }
     }, [props.portfolio]);

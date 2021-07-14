@@ -70,7 +70,7 @@ const App = props => {
         _id: '',
         name: 'UNKNOWN',
     });
-    
+
     const [open, setOpen] = React.useState(false)
     const categories = useRef([]);
     const columns = useRef([]);
@@ -80,11 +80,11 @@ const App = props => {
         selectedrow.current = rowData;
         setOpen(true);
     }
-    
+
     useEffect(() => {
         setDataLoaded(props.dataLoaded)
         if (props.transactions) {
-            var data = props.transactions.map((element, idx) => { 
+            var data = props.transactions.map((element, idx) => {
                 element.id = idx
                 return JSON.flatten(element)
             });
@@ -102,12 +102,12 @@ const App = props => {
     }, [props.dataLoaded, props.transactions]);
 
     useEffect(() => {
-        if(props.portfolio) {
+        if (props.portfolio) {
             setPortfolio(props.portfolio)
         }
     }, [props.portfolio]);
 
-    const headerComponents = () => {}
+    const headerComponents = () => { }
 
     const renderHeader = (sortDir, setSortDir, filteredData) => {
         return () =>
@@ -141,7 +141,7 @@ const App = props => {
                     <Image size='medium' src='https://react.semantic-ui.com/images/avatar/large/rachel.png' wrapped />
                     <Modal.Description style={{ width: "100%" }}>
                         <Header style={{ margin: "8px 0" }}>
-                            { 
+                            {
                                 selectedrow.current && (new Date(selectedrow.current.date).toDateString().split(' ').slice(1).join(' '))
                             }
                         </Header>
@@ -156,10 +156,10 @@ const App = props => {
 
                         <div style={{ margin: "8px 0", width: "100%", position: "relative", fontSize: 18, fontWeight: "bold" }}>
                             <div style={{ width: "70%" }}>
-                                { selectedrow.current?.name } - 
-                                { selectedrow.current?.direction }
-                                { selectedrow.current?.quantity } @
-                                { selectedrow.current?.price }
+                                {selectedrow.current?.name} -
+                                {selectedrow.current?.direction}
+                                {selectedrow.current?.quantity} @
+                                {selectedrow.current?.price}
                             </div>
 
                             <span style={{ "float": "right", position: "absolute", top: 0, right: 5 }}>{Number(selectedrow?.current?.["price"]).toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}</span>
@@ -220,8 +220,10 @@ const App = props => {
                     }}
                 >
                     {
-                        portfolio && (
-                            portfolio.name.toUpperCase()
+                        portfolio.hasOwnProperty('name') ? (
+                            <div>{portfolio.name.toUpperCase()}</div>
+                        ) : (
+                            <div>...</div>
                         )
                     }
                 </div>
